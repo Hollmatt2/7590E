@@ -26,11 +26,17 @@ class Severity(models.TextChoices):
 class Provision(models.Model):
     """One entry in Calder's playbook: a type of contract term the system looks for."""
 
+    class Method(models.TextChoices):
+        RULES = "rules", "Text rule"
+        AI = "ai", "AI model"
+
     name = models.CharField(max_length=100, unique=True)  # e.g. "Cap on liability"
     cuad_category = models.CharField(max_length=100, blank=True)  # the matching CUAD label, used when testing
     definition = models.TextField(blank=True)  # what counts as this kind of clause
     # How serious it is when a contract contains this provision. New flags start at this severity.
     default_severity = models.CharField(max_length=10, choices=Severity, default=Severity.MEDIUM)
+    # How the system looks for it automatically: the brief's rules-versus-model split (section 9).
+    method = models.CharField(max_length=10, choices=Method, default=Method.AI)
 
     # Stretch work since Change Notice 1 (9/9): comparing against standard positions, and gap detection.
     # Kept so that work has a place to go later. Nothing in the required workflow uses these two fields.
@@ -123,7 +129,7 @@ class Flag(models.Model):
     severity = models.CharField(max_length=10, choices=Severity)
     source_text = models.TextField(blank=True)  # the exact words that triggered the flag
     reason = models.TextField()
-    # 0.0 (a guess) to 1.0 (certain). Empty when a person made the flag, because there is no model score.
+    # 0.0 (a guess) to 1.0 (certain), from the AI model. Empty for flags from a person or a text rule.
     confidence = models.FloatField(null=True, blank=True)
     source = models.CharField(max_length=10, choices=Source)
     status = models.CharField(max_length=20, choices=Status, default=Status.OPEN)
@@ -141,6 +147,11 @@ class Flag(models.Model):
                 name="flag_confidence_between_0_and_1",
             ),
         ]
+
+    @property
+    def is_low_confidence(self):
+        """True for an AI finding below the AI_LOW_CONFIDENCE setting. Such findings are marked and listed last."""
+        return self.confidence is not None and self.confidence < settings.AI_LOW_CONFIDENCE
 
     def __str__(self):
         return f"{self.get_kind_display()}: {self.provision} in {self.agreement}"

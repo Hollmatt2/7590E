@@ -67,9 +67,20 @@ instead of leaving the agreement stuck.
 **`core/rules.py`**: text rules, one regular expression per CUAD category a pattern can find. The finding is
 the whole sentence around the match. Measured by `evaluate_identification`.
 
-**`core/auto_identify.py`**: after reading, runs the rules and saves their findings. If every playbook
-provision has an automatic method, the agreement goes to review; otherwise it waits for a person on the
-identification screen. Runs only once per agreement.
+**`core/ai_identify.py`**: the AI step. It sends Claude (Opus 5) the playbook definitions and the agreement's
+numbered clauses, and asks for each provision found: the clause number, the exact quote, a confidence from 0
+to 1, and a one-sentence reason. The answer must match a fixed JSON shape, which the API enforces. The
+instructions are the same for every agreement, so they are cached and later requests cost less. If Claude
+declines, the API retries on another Claude model (`fallbacks: "default"`). Bad input: a quote that is not
+word for word in the agreement is dropped; a quote with the wrong clause number is moved to the clause that
+contains it; a provision not in the playbook is dropped; confidence is kept between 0 and 1. A missing key,
+network trouble, rate limits, a refusal, or a malformed answer all raise `AIUnavailable`, and the agreement
+waits for a person.
+
+**`core/auto_identify.py`**: after reading, looks for each playbook provision with its own method (the
+provision's `method`: a text rule or the AI) and saves the findings. If every method ran, the agreement goes
+to review; if any could not (the AI unavailable, for example), it waits for a person on the identification
+screen with the automatic findings already listed. Runs only once per agreement.
 
 **`core/review.py`**: the review rules: recording a decision, which outcomes are allowed, recording the
 outcome, and the agreement's history. Bad input: an outcome before every finding is decided, or one the
@@ -82,18 +93,19 @@ outcome at once, only the first succeeds.
 its labeled clauses.
 
 **`core/evaluation.py`**: scores identification against CUAD's labels. A flag counts as correct when its
-text overlaps a labeled clause for the same category. Also picks the check set.
+text overlaps a labeled clause for the same category. It can score saved AI answers at several confidence
+thresholds without asking the AI again. Also picks the check set.
 
 ## Commands (`core/management/commands/`)
 
 | File | What it does |
 |---|---|
 | `seed_demo.py` | Demo logins, the playbook, sample agreements. Safe to repeat. |
-| `load_playbook.py` | Loads `seed/playbook.csv`. Refuses an unknown severity. |
-| `process_agreements.py` | The reading worker: reads waiting agreements and runs the rules. `--watch` keeps it running. |
+| `load_playbook.py` | Loads `seed/playbook.csv`. Refuses an unknown severity or method. |
+| `process_agreements.py` | The reading worker: reads waiting agreements and runs automatic identification. `--watch` keeps it running. |
 | `try_reading.py` | Tries reading on a folder of contracts without saving; reports clause counts and timing. |
 | `count_categories.py` | Counts CUAD's labeled clauses per category. |
-| `evaluate_identification.py` | Scores the rules on the check set and writes a report. |
+| `evaluate_identification.py` | Scores the rules or the AI on the check set and writes a report. The AI method shows a cost estimate, needs `--yes`, and saves its answers so they can be re-scored for free. |
 | `evaluate_modified.py` | Scores them on the modified standard agreements. |
 
 ## Tests

@@ -32,7 +32,9 @@ One organization-wide standard per provision, or different standards per agreeme
 
 ## 4. Low-confidence handling
 Suppress, warn, or a separate queue? Ties to the threshold note.
-- What the app does now: nothing yet. There is no AI step, and rule findings have no confidence score.
+- What the app does now: warn. AI findings below 0.5 confidence (the `AI_LOW_CONFIDENCE` setting) are
+  marked "Low confidence" and listed last on the review page; a person still decides on each. Rule and
+  manual findings have no confidence score.
 - Options considered:
 - Decision:
 - Reasoning:

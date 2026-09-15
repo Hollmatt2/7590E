@@ -1,11 +1,29 @@
-"""Checks for the text rules, automatic identification, and evaluation scoring. Run:  python manage.py test"""
+"""Checks for the text rules, the AI step, automatic identification, and scoring. Run:  python manage.py test
+
+The AI step is never really called here: `ask_claude` is replaced with a stand-in that returns a fixed
+answer, so the tests are free, fast, and do not need a key.
+"""
+import json
+from types import SimpleNamespace
+from unittest.mock import patch
+
 from django.test import SimpleTestCase, TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 
+from .ai_identify import AIUnavailable, find_with_ai
 from .auto_identify import identify_automatically
 from .evaluation import CategoryScore, score_contract
 from .models import Agreement, Clause, Flag, Provision, Severity, User
 from .rules import RULES, find_with_rules
+
+USAGE = SimpleNamespace(input_tokens=1000, output_tokens=200, cache_creation_input_tokens=0, cache_read_input_tokens=0)
+
+
+def answer(*findings):
+    """A stand-in for Claude's answer: each finding is (category, clause number, quote, confidence, reason)."""
+    keys = ["category", "clause", "quote", "confidence", "reason"]
+    return json.dumps({"findings": [dict(zip(keys, finding)) for finding in findings]}), USAGE
 
 
 class RuleTests(SimpleTestCase):
@@ -41,44 +59,105 @@ class RuleTests(SimpleTestCase):
         )
 
 
+@patch("core.ai_identify.credentials_configured", return_value=True)
+@patch("core.ai_identify.ask_claude")
+class AIStepTests(SimpleTestCase):
+    clauses = [
+        "1. Governing Law. This Agreement is governed by the laws of\nthe State of Georgia.",
+        "2. Liability. Liability is capped at the fees paid in the prior twelve months.",
+    ]
+    definitions = {"Governing law": "Which law governs.", "Cap on liability": "A limit on liability."}
+
+    def test_only_quotes_really_in_the_agreement_are_kept(self, ask, _):
+        ask.return_value = answer(
+            ("Governing law", 1, "governed by the laws of the State of Georgia", 0.95, "Names the governing law."),
+            ("Cap on liability", 1, "capped at the fees paid", 0.8, "Caps liability."),  # wrong clause number
+            ("Cap on liability", 2, "liability is unlimited", 0.6, "Invented."),  # not in the agreement
+            ("Exclusivity", 1, "governed by", 0.9, "Not in the playbook."),  # unknown provision
+        )
+        findings, _ = find_with_ai(self.clauses, self.definitions)
+        self.assertEqual([(f.name, f.clause) for f in findings], [("Governing law", 0), ("Cap on liability", 1)])
+
+    def test_confidence_is_kept_between_0_and_1(self, ask, _):
+        ask.return_value = answer(("Governing law", 1, "governed by the laws", 1.7, "Plainly stated."))
+        findings, _ = find_with_ai(self.clauses, self.definitions)
+        self.assertEqual(findings[0].confidence, 1.0)
+
+    def test_an_answer_in_the_wrong_format_means_the_ai_is_unavailable(self, ask, _):
+        ask.return_value = ("this is not JSON", USAGE)
+        with self.assertRaises(AIUnavailable):
+            find_with_ai(self.clauses, self.definitions)
+
+    def test_without_a_key_the_ai_is_unavailable(self, ask, credentials):
+        credentials.return_value = False
+        with self.assertRaises(AIUnavailable):
+            find_with_ai(self.clauses, self.definitions)
+        ask.assert_not_called()
+
+
 class AutomaticIdentificationTests(TestCase):
     def setUp(self):
-        user = User.objects.create_user("req", password="pw")
-        self.law = Provision.objects.create(name="Governing law", cuad_category="Governing Law", default_severity=Severity.LOW)
-        self.cap = Provision.objects.create(name="Cap on liability", cuad_category="Cap On Liability")  # no rule
+        self.requester = User.objects.create_user("req", password="pw")
+        self.law = Provision.objects.create(
+            name="Governing law", cuad_category="Governing Law", default_severity=Severity.LOW,
+            method=Provision.Method.RULES,
+        )
+        self.cap = Provision.objects.create(
+            name="Cap on liability", cuad_category="Cap On Liability", definition="A limit on liability.",
+            method=Provision.Method.AI,
+        )
         self.agreement = Agreement.objects.create(
             vendor="Acme", agreement_type=Agreement.AgreementType.SERVICES, business_unit="Corporate",
-            needed_by=timezone.localdate(), document="agreements/acme.pdf", submitted_by=user,
+            needed_by=timezone.localdate(), document="agreements/acme.pdf", submitted_by=self.requester,
             status=Agreement.Status.AWAITING_IDENTIFICATION,
         )
-        self.clause = Clause.objects.create(
+        self.law_clause = Clause.objects.create(
             agreement=self.agreement, position=1, text="This Agreement is governed by the laws of Georgia."
         )
-        Clause.objects.create(agreement=self.agreement, position=2, text="Liability is capped at the fees paid.")
+        self.cap_clause = Clause.objects.create(
+            agreement=self.agreement, position=2, text="Liability is capped at the fees paid."
+        )
 
-    def test_rule_findings_are_saved_for_a_person_to_check(self):
-        identify_automatically(self.agreement)
+    @patch("core.ai_identify.credentials_configured", return_value=False)
+    def test_when_the_ai_is_unavailable_rule_findings_wait_for_a_person(self, _):
+        note = identify_automatically(self.agreement)
         flag = Flag.objects.get()
-        self.assertEqual((flag.provision, flag.clause, flag.source), (self.law, self.clause, Flag.Source.RULE))
-        self.assertEqual(flag.source_text, "This Agreement is governed by the laws of Georgia.")
+        self.assertEqual((flag.provision, flag.clause, flag.source), (self.law, self.law_clause, Flag.Source.RULE))
         self.assertIsNone(flag.confidence)  # a rule is not a model, so it has no confidence score
-        # "Cap on liability" has no automatic method, so a person still has to finish identification.
+        self.assertTrue(note.startswith("AI unavailable"))
+        # The AI could not look for "Cap on liability", so a person has to finish identification.
         self.assertEqual(self.agreement.status, Agreement.Status.AWAITING_IDENTIFICATION)
 
-    def test_it_runs_only_once_per_agreement(self):
+    @patch("core.ai_identify.credentials_configured", return_value=True)
+    @patch("core.ai_identify.ask_claude")
+    def test_ai_findings_are_saved_with_their_confidence(self, ask, _):
+        ask.return_value = answer(("Cap on liability", 2, "capped at the fees paid", 0.8, "Caps liability."))
+        identify_automatically(self.agreement)
+        ai_flag = Flag.objects.get(source=Flag.Source.AI)
+        self.assertEqual((ai_flag.provision, ai_flag.clause, ai_flag.confidence), (self.cap, self.cap_clause, 0.8))
+        # Every provision's method ran, so the agreement goes straight to review.
+        self.assertEqual(self.agreement.status, Agreement.Status.IN_REVIEW)
+
+    @patch("core.ai_identify.credentials_configured", return_value=False)
+    def test_it_runs_only_once_per_agreement(self, _):
         identify_automatically(self.agreement)
         identify_automatically(self.agreement)
         self.assertEqual(Flag.objects.count(), 1)
-
-    def test_when_every_provision_has_a_method_the_agreement_goes_to_review(self):
-        self.cap.delete()
-        identify_automatically(self.agreement)
-        self.assertEqual(self.agreement.status, Agreement.Status.IN_REVIEW)
 
     @override_settings(AUTO_IDENTIFY=[])
     def test_switched_off_it_does_nothing(self):
         identify_automatically(self.agreement)
         self.assertFalse(Flag.objects.exists())
+
+    def test_low_confidence_ai_findings_are_marked_on_the_review_page(self):
+        User.objects.create_user("rev", password="pw", role=User.Role.REVIEWER)
+        Agreement.objects.filter(pk=self.agreement.pk).update(status=Agreement.Status.IN_REVIEW)
+        Flag.objects.create(
+            agreement=self.agreement, provision=self.cap, clause=self.cap_clause, severity=Severity.MEDIUM,
+            source_text="capped at the fees paid", reason="Maybe a cap.", source=Flag.Source.AI, confidence=0.3,
+        )
+        self.client.login(username="rev", password="pw")
+        self.assertContains(self.client.get(reverse("review", args=[self.agreement.pk])), "Low confidence")
 
 
 class ScoringTests(SimpleTestCase):

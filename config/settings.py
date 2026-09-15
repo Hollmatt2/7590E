@@ -149,9 +149,16 @@ MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', BASE_DIR / 'media'))
 # Largest contract file the intake form accepts.
 MAX_UPLOAD_MB = 20
 
-# Automatic identification to run after a document is read, separated by commas. "rules" runs the
-# text rules in core/rules.py. Set AUTO_IDENTIFY to an empty value to leave identification to people.
-AUTO_IDENTIFY = [method for method in os.environ.get('AUTO_IDENTIFY', 'rules').split(',') if method]
+# Automatic identification to run after a document is read, separated by commas: "rules" runs the text
+# rules in core/rules.py, "ai" runs the AI step in core/ai_identify.py. Each playbook provision says which
+# of the two looks for it. Set AUTO_IDENTIFY to an empty value to leave identification to people.
+AUTO_IDENTIFY = [method for method in os.environ.get('AUTO_IDENTIFY', 'rules,ai').split(',') if method]
+
+# The AI step. The Anthropic library reads the key from ANTHROPIC_API_KEY; it is never stored here.
+AI_MODEL = os.environ.get('AI_MODEL', 'claude-opus-5')
+# AI findings below this confidence are marked "low confidence" and listed last on the review page.
+# A person still decides on them. (Ambiguity log question 4; the threshold note.)
+AI_LOW_CONFIDENCE = float(os.environ.get('AI_LOW_CONFIDENCE', '0.5'))
 
 
 # Logging in and out

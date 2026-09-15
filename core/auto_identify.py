@@ -1,46 +1,82 @@
-"""Automatic identification: workflow stage 3 without a person. Text rules now; the AI model next.
+"""Automatic identification: workflow stage 3 without a person, by text rules and the AI step.
 
-After a document is read, this runs the automatic methods over its clauses and saves what they find
-as flags. If every playbook provision has an automatic method, the agreement goes straight to review.
-Otherwise it waits on the manual identification screen, where the automatic findings are already
+After a document is read, each playbook provision is looked for by its own method (its "method" field:
+a text rule or the AI model). Findings are saved as flags. If every provision's method ran, the
+agreement goes straight to review. If any could not run (no rule for it, the AI switched off or
+unavailable), it waits on the manual identification screen, where the automatic findings are already
 listed and a person adds the rest. Either way, a person decides on every flag (brief, section 5).
 """
+import logging
+
 from django.conf import settings
 from django.db import transaction
 
+from .ai_identify import AIUnavailable, find_with_ai
 from .models import Agreement, Flag, Provision
 from .rules import COMPILED, find_with_rules
 
+logger = logging.getLogger(__name__)
+
+
+def make_flag(agreement, provision, clause, words, source, reason, confidence=None):
+    return Flag(
+        agreement=agreement,
+        provision=provision,
+        clause=clause,
+        kind=Flag.Kind.PRESENT,
+        severity=provision.default_severity,
+        source_text=words,
+        reason=reason,
+        source=source,
+        confidence=confidence,
+    )
+
 
 def identify_automatically(agreement):
-    """Add automatic findings to an agreement that is waiting for identification. Runs once per agreement."""
-    if "rules" not in settings.AUTO_IDENTIFY:
-        return agreement
+    """Add automatic findings to an agreement that is waiting for identification. Runs once per agreement.
+
+    Returns a short note for the worker's log: "done", "skipped", or why the AI could not run.
+    """
     if agreement.status != Agreement.Status.AWAITING_IDENTIFICATION:
-        return agreement
+        return "skipped"
     if agreement.flags.exclude(source=Flag.Source.MANUAL).exists():
-        return agreement  # already done
+        return "skipped"  # already done
 
-    provisions = {provision.cuad_category: provision for provision in Provision.objects.all()}
-    flags = []
-    for clause in agreement.clauses.all():
-        for category, sentence in find_with_rules(clause.text, provisions):
-            provision = provisions[category]
-            flags.append(Flag(
-                agreement=agreement,
-                provision=provision,
-                clause=clause,
-                kind=Flag.Kind.PRESENT,
-                severity=provision.default_severity,
-                source_text=sentence,
-                reason=f"Matched the text rule for {provision.name}.",
-                source=Flag.Source.RULE,
-            ))
-    every_provision_covered = all(category in COMPILED for category in provisions)
+    provisions = list(Provision.objects.all())
+    clauses = list(agreement.clauses.all())
+    flags, covered, note = [], set(), "done"
 
+    if "rules" in settings.AUTO_IDENTIFY:
+        by_category = {
+            p.cuad_category: p for p in provisions if p.method == Provision.Method.RULES and p.cuad_category in COMPILED
+        }
+        for clause in clauses:
+            for category, sentence in find_with_rules(clause.text, by_category):
+                provision = by_category[category]
+                reason = f"Matched the text rule for {provision.name}."
+                flags.append(make_flag(agreement, provision, clause, sentence, Flag.Source.RULE, reason))
+        covered.update(provision.pk for provision in by_category.values())
+
+    ai_provisions = [p for p in provisions if p.method == Provision.Method.AI]
+    if "ai" in settings.AUTO_IDENTIFY and ai_provisions:
+        by_name = {p.name: p for p in ai_provisions}
+        try:
+            findings, _ = find_with_ai([clause.text for clause in clauses], {p.name: p.definition or p.name for p in ai_provisions})
+        except AIUnavailable as error:
+            logger.warning("AI step unavailable for agreement %s: %s", agreement.pk, error)
+            note = f"AI unavailable: {error}"
+        else:
+            for finding in findings:
+                flags.append(make_flag(
+                    agreement, by_name[finding.name], clauses[finding.clause], finding.quote, Flag.Source.AI,
+                    finding.reason or "Identified by the AI model.", confidence=finding.confidence,
+                ))
+            covered.update(provision.pk for provision in ai_provisions)
+
+    every_method_ran = all(provision.pk in covered for provision in provisions)
     with transaction.atomic():
         Flag.objects.bulk_create(flags)
-        if every_provision_covered:
+        if every_method_ran:
             agreement.status = Agreement.Status.IN_REVIEW
             agreement.save(update_fields=["status"])
-    return agreement
+    return note

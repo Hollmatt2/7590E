@@ -174,6 +174,8 @@ def render_review(request, agreement, bound_forms=None, disposition_form=None, f
     flags = agreement.flags.select_related("provision", "clause", "created_by").prefetch_related(
         "decisions__decided_by"
     )
+    # Low-confidence AI findings are listed last (and marked in the page): the app's low-confidence behavior.
+    flags = sorted(flags, key=lambda flag: flag.is_low_confidence)
     items = [(flag, bound_forms.get(flag.pk) or DecisionForm(prefix=f"flag{flag.pk}")) for flag in flags]
     return render(request, "core/review.html", {
         "agreement": agreement,

@@ -26,7 +26,8 @@ How each module was made:
 | `core/review.py` | Review rules: decisions, outcomes, and the agreement's history | Predominantly AI-generated | 2026-09-14 |
 | `core/reading.py` | Extracts the text of a PDF or .txt file and splits it into clauses | Predominantly AI-generated | 2026-09-14 |
 | `core/rules.py` | Text rules that find some provisions with patterns | Predominantly AI-generated | 2026-09-14 |
-| `core/auto_identify.py` | Runs automatic identification after a document is read | Predominantly AI-generated | 2026-09-14 |
+| `core/ai_identify.py` | The AI step: asks Claude which provisions an agreement contains, and checks the answer | Predominantly AI-generated | 2026-09-15 |
+| `core/auto_identify.py` | Runs automatic identification (rules and the AI) after a document is read | Predominantly AI-generated | 2026-09-15 |
 | `core/cuad.py` | Reads CUAD's labels and category descriptions | Predominantly AI-generated | 2026-09-14 |
 | `core/evaluation.py` | Scores identification against CUAD's labels and picks the check set | Predominantly AI-generated | 2026-09-14 |
 | `core/templates/` | The HTML pages | Predominantly AI-generated | 2026-09-14 |

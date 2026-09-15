@@ -18,6 +18,8 @@ the uploaded files, and a Railway volume attaches to only one service, so they s
    - `DJANGO_DEBUG` = `0`
    - `MEDIA_ROOT` = `/data/media`
    - `DEMO_PASSWORD`: the password for the four demo logins
+   - `ANTHROPIC_API_KEY`: the Anthropic key for the AI step. Without it, the site still works and the
+     provisions the AI looks for wait for a person.
 6. In the service's Settings, under Networking, generate a public domain. Railway passes the address to
    the app as `RAILWAY_PUBLIC_DOMAIN`, which the app adds to its allowed hosts. If it does not, set
    `DJANGO_ALLOWED_HOSTS` to the address.

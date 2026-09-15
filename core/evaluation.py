@@ -93,14 +93,35 @@ def make_check_set(size, categories, minimum, seed=2026):
     return [contract["title"] for contract in chosen]
 
 
-def evaluate(titles, categories, finder):
-    """Score `finder` (clause text -> [(category, words), ...]) on the given contracts."""
+def contracts_by_title():
     # Some CUAD titles end in a space, and the check-set file is read with surrounding spaces removed,
     # so titles are compared without them.
-    by_title = {contract["title"].strip(): contract for contract in load_contracts()}
-    scores = {category: CategoryScore() for category in categories}
+    return {contract["title"].strip(): contract for contract in load_contracts()}
+
+
+def predict(titles, finder, on_contract=None):
+    """Run `finder` (the contract's clause texts -> [(category, words, confidence or None), ...]) on each contract.
+
+    Returns {title: predictions}. `on_contract(title, predictions)` is called after each one, so a long,
+    paid run can save its progress as it goes.
+    """
+    by_title = contracts_by_title()
+    results = {}
     for title in titles:
+        results[title] = finder(split_into_clauses(by_title[title.strip()]["text"]))
+        if on_contract:
+            on_contract(title, results[title])
+    return results
+
+
+def score(predictions, categories, minimum_confidence=0.0):
+    """Score saved predictions ({title: [(category, words, confidence), ...]}), ignoring findings below the
+    minimum confidence (findings without a confidence, from text rules, are always kept)."""
+    by_title = contracts_by_title()
+    scores = {category: CategoryScore() for category in categories}
+    for title, found in predictions.items():
         contract = by_title[title.strip()]
-        predictions = [finding for clause in split_into_clauses(contract["text"]) for finding in finder(clause)]
-        score_contract(title, contract["text"], contract["labels"], predictions, scores)
+        kept = [(category, words) for category, words, confidence in found
+                if confidence is None or confidence >= minimum_confidence]
+        score_contract(title, contract["text"], contract["labels"], kept, scores)
     return scores

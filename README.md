@@ -46,8 +46,8 @@ Log in as `requester`, `reviewer`, `approver` or `admin`. The password is `calde
 | `process_agreements [--watch]` | Reads submitted documents, splits them into clauses, runs automatic identification. |
 | `try_reading <folder>` | Tries text extraction and splitting on a folder of contracts, without saving anything. |
 | `count_categories` | Counts CUAD's labeled clauses per category into `docs/cuad-category-counts.md`. Needs CUAD. |
-| `evaluate_identification` | Scores the text rules against CUAD's labels on `seed/check_set.txt`. Needs CUAD. |
-| `evaluate_modified` | Scores them on the modified standard agreements in `seed/modified_agreements/`. |
+| `evaluate_identification` | Scores the text rules against CUAD's labels on `seed/check_set.txt`. With `--method ai` it scores the AI step instead; that costs money, so it shows an estimate and needs `--yes`. Needs CUAD. |
+| `evaluate_modified` | Scores the rules on the modified standard agreements in `seed/modified_agreements/`. |
 
 ## The CUAD dataset (only for the evaluation commands)
 
@@ -71,7 +71,12 @@ Everything that differs between a laptop and the deployed site is an environment
 | `DATABASE_URL` | SQLite file | Railway's Postgres |
 | `MEDIA_ROOT` | `media/` | `/data/media`, on the Railway volume |
 | `DEMO_PASSWORD` | `calder-demo` | set your own |
-| `AUTO_IDENTIFY` | `rules` | `rules` |
+| `AUTO_IDENTIFY` | `rules,ai` | `rules,ai` |
+| `ANTHROPIC_API_KEY` | your Anthropic key, for the AI step | the same, set in Railway |
+| `AI_MODEL` | `claude-opus-5` | `claude-opus-5` |
+| `AI_LOW_CONFIDENCE` | `0.5` | the threshold from the threshold note |
+
+Without `ANTHROPIC_API_KEY`, the app still works: the provisions the AI looks for wait for a person.
 
 ## Where things are
 

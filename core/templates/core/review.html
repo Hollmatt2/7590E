@@ -10,7 +10,7 @@
 
 {% for flag, form in items %}
   <section class="finding">
-    <h2>{{ flag.provision }}</h2>
+    <h2>{{ flag.provision }}{% if flag.is_low_confidence %} <small class="errorlist">· Low confidence: check carefully</small>{% endif %}</h2>
     <p>{{ flag.get_severity_display }} severity · clause {{ flag.clause.position }} ·
       {{ flag.get_source_display }}{% if flag.created_by %} ({{ flag.created_by.username }}){% endif %}
       {% if flag.confidence is not None %}· confidence {{ flag.confidence|floatformat:2 }}{% endif %}

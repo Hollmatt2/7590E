@@ -39,9 +39,11 @@ class Command(BaseCommand):
             if agreement.status == Agreement.Status.READ_FAILED:
                 self.stdout.write(self.style.WARNING(f"{agreement}: could not read. {agreement.read_error}"))
                 continue
-            identify_automatically(agreement)
+            note = identify_automatically(agreement)
             found = agreement.flags.count()
-            self.stdout.write(
-                f"{agreement}: {agreement.clauses.count()} clauses, {found} automatic finding{'' if found == 1 else 's'}, "
-                f"now {agreement.get_status_display().lower()}"
-            )
+            line = (f"{agreement}: {agreement.clauses.count()} clauses, {found} automatic finding{'' if found == 1 else 's'}, "
+                    f"now {agreement.get_status_display().lower()}")
+            if note.startswith("AI unavailable"):
+                self.stdout.write(self.style.WARNING(f"{line}. {note}"))
+            else:
+                self.stdout.write(line)

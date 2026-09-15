@@ -7,6 +7,9 @@ section 3).
 - **Name**: what reviewers see, such as "Cap on liability".
 - **CUAD category**: the matching CUAD label. The text rules (`core/rules.py`) and the evaluation use it.
 - **Default severity**: low, medium or high. New findings for the provision start at this severity.
+- **Method**: how the system looks for it automatically: `rules` (a text rule in `core/rules.py`) or `ai`
+  (the AI step). This is the brief's rules-versus-model split (section 9). Choose it per provision from the
+  evaluation results.
 - **Definition**: what counts as the provision. By default, CUAD's own description of the category.
 - **Standard position** and **required**: kept for stretch work since Change Notice 1; not used.
 
