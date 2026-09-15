@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}My submissions · Calder Agreement Review{% endblock %}
+
+{% block content %}
+<h1>My submissions</h1>
+{% if agreements %}
+  <table>
+    <thead>
+      <tr><th>Vendor</th><th>Type</th><th>Needed by</th><th>Submitted</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for agreement in agreements %}
+        <tr>
+          <td><a href="{% url 'agreement_detail' agreement.pk %}">{{ agreement.vendor }}</a></td>
+          <td>{{ agreement.get_agreement_type_display }}</td>
+          <td>{{ agreement.needed_by|date:"M j, Y" }}</td>
+          <td>{{ agreement.submitted_at|date:"M j, Y" }}</td>
+          <td>{{ agreement.get_status_display }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>You have not submitted anything yet. <a href="{% url 'submit_agreement' %}">Submit an agreement</a>.</p>
+{% endif %}
+{% endblock %}

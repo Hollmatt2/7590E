@@ -1,0 +1,13 @@
+name,cuad_category,default_severity,definition
+Cap on liability,Cap On Liability,medium,Does the contract include a cap on liability upon the breach of a party’s obligation? This includes time limitation for the counterparty to bring claims or maximum amount for recovery.
+Uncapped liability,Uncapped Liability,medium,Is a party’s liability uncapped upon the breach of its obligation in the contract? This also includes uncap liability for a particular type of breach such as IP infringement or breach of confidentiality obligation.
+Auto-renewal,Renewal Term,medium,What is the renewal term after the initial term expires? This includes automatic extensions and unilateral extensions with prior notice.
+Notice period to stop renewal,Notice Period To Terminate Renewal,medium,What is the notice period required to terminate renewal?
+Termination for convenience,Termination For Convenience,medium,Can a party terminate this  contract without cause (solely by giving a notice and allowing a waiting  period to expire)?
+Assignment restriction,Anti-Assignment,medium,Is consent or notice required of a party if the contract is assigned to a third party?
+Change of control,Change Of Control,medium,"Does one party have the right to terminate or is consent or notice required of the counterparty if such party undergoes a change of control, such as a merger, stock sale, transfer of all or substantially all of its assets or business, or assignment by operation of law?"
+Governing law,Governing Law,medium,Which state/country's law governs the interpretation of the contract?
+Exclusivity,Exclusivity,medium,"Is there an exclusive dealing  commitment with the counterparty? This includes a commitment to procure all “requirements” from one party of certain technology, goods, or services or a prohibition on licensing or selling technology, goods or services to third parties, or a prohibition on  collaborating or working with other parties), whether during the contract or  after the contract ends (or both)."
+Audit rights,Audit Rights,medium,"Does a party have the right to  audit the books, records, or physical locations of the counterparty to ensure compliance with the contract?"
+Insurance requirement,Insurance,medium,Is there a requirement for insurance that must be maintained by one party for the benefit of the counterparty?
+Warranty duration,Warranty Duration,medium,"What is the duration of any  warranty against defects or errors in technology, products, or services  provided under the contract?"

@@ -1,0 +1,19 @@
+# Files Git should never save.
+
+# Python: the virtual environment and compiled caches (rebuilt on every machine)
+.venv/
+__pycache__/
+*.pyc
+
+# Local database and uploaded files (each machine has its own)
+db.sqlite3
+media/
+
+# Downloaded datasets such as CUAD (large; anyone can download them again)
+data/
+
+# Static files gathered by "collectstatic" (rebuilt on every deployment)
+staticfiles/
+
+# Secrets such as API keys. Never commit this file.
+.env

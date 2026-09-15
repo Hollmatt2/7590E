@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{{ agreement.vendor }} · Calder Agreement Review{% endblock %}
+
+{% block content %}
+<h1>{{ agreement.vendor }}</h1>
+<table>
+  <tr><th>Status</th><td>{{ agreement.get_status_display }}</td></tr>
+  <tr><th>Agreement type</th><td>{{ agreement.get_agreement_type_display }}</td></tr>
+  <tr><th>Business unit</th><td>{{ agreement.business_unit }}</td></tr>
+  <tr><th>Needed by</th><td>{{ agreement.needed_by|date:"M j, Y" }}</td></tr>
+  <tr><th>Submitted by</th><td>{{ agreement.submitted_by.username }} on {{ agreement.submitted_at|date:"M j, Y, g:i a" }}</td></tr>
+  <tr><th>Document</th><td><a href="{% url 'agreement_document' agreement.pk %}">Open the file</a></td></tr>
+</table>
+
+{% if agreement.read_error %}
+  <p class="errorlist">The document could not be read. {{ agreement.read_error }}</p>
+{% endif %}
+
+{% if can_identify %}
+  <p><a href="{% url 'identify' agreement.pk %}">Identify provisions in this agreement</a></p>
+{% endif %}
+{% if can_review %}
+  <p><a href="{% url 'review' agreement.pk %}">Review the findings and record the outcome</a></p>
+{% endif %}
+
+{% with outcome=agreement.dispositions.last %}
+  {% if outcome %}
+    <h2>Outcome</h2>
+    <p>{{ outcome.get_outcome_display }}, recorded by {{ outcome.decided_by.username }} on {{ outcome.decided_at|date:"M j, Y" }}.</p>
+    {% if outcome.conditions %}<p><strong>Conditions:</strong> {{ outcome.conditions }}</p>{% endif %}
+  {% endif %}
+{% endwith %}
+
+{% if show_findings %}
+  {% with findings=agreement.flags.all %}
+    {% if findings %}
+      <h2>Findings ({{ findings|length }})</h2>
+      <table>
+        <thead>
+          <tr><th>Provision</th><th>Severity</th><th>Clause</th><th>Supporting text</th><th>Found by</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for flag in findings %}
+            <tr>
+              <td>{{ flag.provision }}</td>
+              <td>{{ flag.get_severity_display }}</td>
+              <td>{{ flag.clause.position|default:"—" }}</td>
+              <td>{{ flag.source_text }}</td>
+              <td>{{ flag.get_source_display }}{% if flag.created_by %} ({{ flag.created_by.username }}){% endif %}</td>
+              <td>{{ flag.get_status_display }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% endwith %}
+
+  {% if history %}
+    <h2>History</h2>
+    <table>
+      <thead><tr><th>When</th><th>Who</th><th>What</th><th>Reason or conditions</th></tr></thead>
+      <tbody>
+        {% for when, who, what, why in history %}
+          <tr><td>{{ when|date:"M j, Y, g:i a" }}</td><td>{{ who }}</td><td>{{ what }}</td><td>{{ why }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endif %}
+
+{% with clauses=agreement.clauses.all %}
+  {% if clauses %}
+    <h2>Clauses ({{ clauses|length }})</h2>
+    <p>The document's text, split into the pieces that provisions are marked against.</p>
+    <ol class="clauses">
+      {% for clause in clauses %}<li>{{ clause.text }}</li>{% endfor %}
+    </ol>
+  {% endif %}
+{% endwith %}
+{% endblock %}

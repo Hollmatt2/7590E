@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load review_extras %}
+
+{% block title %}Review · {{ agreement.vendor }}{% endblock %}
+
+{% block content %}
+<h1>Review: {{ agreement.vendor }}</h1>
+<p>{{ agreement.get_status_display }}. Decide each finding and give a reason, then record the outcome for
+  the agreement. <a href="{% url 'agreement_detail' agreement.pk %}">Agreement details</a></p>
+
+{% for flag, form in items %}
+  <section class="finding">
+    <h2>{{ flag.provision }}</h2>
+    <p>{{ flag.get_severity_display }} severity · clause {{ flag.clause.position }} ·
+      {{ flag.get_source_display }}{% if flag.created_by %} ({{ flag.created_by.username }}){% endif %}
+      {% if flag.confidence is not None %}· confidence {{ flag.confidence|floatformat:2 }}{% endif %}
+      · <strong>{{ flag.get_status_display }}</strong></p>
+    <blockquote class="clause-text">{{ flag.clause.text|highlight:flag.source_text }}</blockquote>
+    {% with decisions=flag.decisions.all %}
+      {% if decisions %}
+        <ul>
+          {% for decision in decisions %}
+            <li>{{ decision.decided_at|date:"M j, g:i a" }}: {{ decision.decided_by.username }} chose
+              {{ decision.get_action_display|lower }}. {{ decision.reason }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="post" action="{% url 'decide_flag' agreement.pk flag.pk %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Record decision</button>
+    </form>
+  </section>
+{% empty %}
+  <p>No findings. None of the playbook provisions was identified in this agreement.</p>
+{% endfor %}
+
+<h2>Add a finding identification missed</h2>
+<p>Clause numbers match the numbered list on the <a href="{% url 'agreement_detail' agreement.pk %}">agreement page</a>.</p>
+<form method="post" action="{% url 'add_missed_finding' agreement.pk %}">
+  {% csrf_token %}
+  {{ finding_form.as_p }}
+  <button type="submit">Add finding</button>
+</form>
+
+<h2>Outcome for the agreement</h2>
+{% if undecided %}
+  <p>{{ undecided }} finding{{ undecided|pluralize }} still need{{ undecided|pluralize:"s," }} a decision
+    before the outcome can be recorded.</p>
+{% else %}
+  <form method="post" action="{% url 'dispose' agreement.pk %}">
+    {% csrf_token %}
+    {{ disposition_form.as_p }}
+    <button type="submit">Record outcome</button>
+  </form>
+{% endif %}
+{% endblock %}

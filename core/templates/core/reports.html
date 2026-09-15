@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Reports · Calder Agreement Review{% endblock %}
+
+{% block content %}
+<h1>Reports</h1>
+
+<h2>Agreements waiting, by stage</h2>
+<table>
+  <thead><tr><th>Stage</th><th>Agreements</th><th>Median days waiting</th><th>Longest wait (days)</th></tr></thead>
+  <tbody>
+    {% for row in waiting %}
+      <tr>
+        <td>{{ row.stage }}</td>
+        <td>{{ row.count }}</td>
+        <td>{% if row.count %}{{ row.median|floatformat:1 }}{% else %}—{% endif %}</td>
+        <td>{% if row.count %}{{ row.longest }}{% else %}—{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>Reviews finished: {{ finished }}.
+  {% if finished %}Median days from submission to outcome: {{ median_turnaround|floatformat:1 }}.{% endif %}</p>
+
+<h2>Provisions found most often</h2>
+<p>A count over every finding on every submitted agreement (Change Notice 1).</p>
+<table>
+  <thead>
+    <tr><th>Provision</th><th>Times found</th><th>Agreements</th><th>Accepted</th><th>Dismissed</th><th>Escalated</th></tr>
+  </thead>
+  <tbody>
+    {% for provision in provisions %}
+      <tr><td>{{ provision.name }}</td><td>{{ provision.found }}</td><td>{{ provision.agreements }}</td><td>{{ provision.accepted }}</td><td>{{ provision.dismissed }}</td><td>{{ provision.escalated }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

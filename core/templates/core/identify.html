@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Identify provisions · {{ agreement.vendor }}{% endblock %}
+
+{% block content %}
+<h1>Identify provisions: {{ agreement.vendor }}</h1>
+<p>Read the clauses. For each playbook provision you find, choose its clause and paste the exact words
+  that show it. Findings from the text rules are already listed; remove any that are wrong. When you are
+  done, finish identification to send the agreement to review.</p>
+
+<div class="two-columns">
+  <section>
+    <h2>Clauses ({{ clauses|length }})</h2>
+    <ol class="clauses">
+      {% for clause in clauses %}<li>{{ clause.text }}</li>{% endfor %}
+    </ol>
+  </section>
+
+  <section>
+    <h2>Add a finding</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Add finding</button>
+    </form>
+
+    <h2>Findings so far ({{ findings|length }})</h2>
+    {% for flag in findings %}
+      <div class="finding">
+        <strong>{{ flag.provision }}</strong>, clause {{ flag.clause.position }} · {{ flag.get_source_display }}
+        <blockquote>{{ flag.source_text }}</blockquote>
+        <form method="post" action="{% url 'remove_finding' agreement.pk flag.pk %}">
+          {% csrf_token %}<button type="submit">Remove</button>
+        </form>
+      </div>
+    {% empty %}
+      <p>None yet.</p>
+    {% endfor %}
+
+    <form method="post" action="{% url 'finish_identification' agreement.pk %}">
+      {% csrf_token %}
+      <p><button type="submit">Finish identification and send to review</button></p>
+    </form>
+  </section>
+</div>
+{% endblock %}
