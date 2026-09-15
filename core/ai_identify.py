@@ -98,19 +98,28 @@ def build_prompt(clauses, definitions):
     return system, user
 
 
+# Models that accept the API's automatic retry on another model when a request is declined.
+MODELS_WITH_FALLBACKS = {"claude-opus-5", "claude-fable-5", "claude-fable-5-1"}
+
+
 def ask_claude(system, user, schema):
     """Send one request and return (answer text, usage). API errors become AIUnavailable."""
+    request = {
+        "model": settings.AI_MODEL,
+        "max_tokens": 32000,
+        # Marked for caching. The cache only takes effect once the instructions reach the model's minimum
+        # length (512 tokens on Opus 5, 4,096 on Haiku 4.5); below that the marker is simply ignored.
+        "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
+        "messages": [{"role": "user", "content": user}],
+        "output_config": {"format": {"type": "json_schema", "schema": schema}},
+    }
     try:
         client = anthropic.Anthropic()
-        with client.beta.messages.stream(
-            model=settings.AI_MODEL,
-            max_tokens=32000,
-            system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-            messages=[{"role": "user", "content": user}],
-            output_config={"format": {"type": "json_schema", "schema": schema}},
-            betas=[FALLBACK_BETA],
-            fallbacks="default",
-        ) as stream:
+        if settings.AI_MODEL in MODELS_WITH_FALLBACKS:
+            manager = client.beta.messages.stream(**request, betas=[FALLBACK_BETA], fallbacks="default")
+        else:
+            manager = client.messages.stream(**request)
+        with manager as stream:
             message = stream.get_final_message()
     except anthropic.AuthenticationError as error:
         raise AIUnavailable("The Anthropic API key is missing or not valid.") from error

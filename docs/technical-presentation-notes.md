@@ -13,7 +13,8 @@ step, and a person decides on every finding.
 - Python 3.14, Django 6.1: server-rendered pages, Django's login and admin.
 - SQLite locally, Postgres on Railway.
 - pdfplumber for PDF text extraction.
-- The Anthropic API with Claude Opus 5 for the AI step, through Anthropic's Python library.
+- The Anthropic API with Claude Haiku 4.5 for the AI step (one setting switches to Opus 5), through Anthropic's
+  Python library.
 - Deployment: Railway, one service running gunicorn and the reading worker, with a volume for uploads.
 - Code on GitHub: github.com/Hollmatt2/7590E.
 
@@ -29,9 +30,9 @@ step, and a person decides on every finding.
   happens when the AI service goes down").
 
 ## The AI step
-- One request per agreement: the playbook definitions (cached, the same every time) plus the numbered clauses.
+- One request per agreement: the playbook definitions plus the numbered clauses.
 - The answer must match a fixed JSON shape: provision, clause number, exact quote, confidence 0–1, reason.
-- If Claude declines, the API retries on another Claude model automatically.
+- Haiku 4.5 costs about a fifth of Opus 5 per token; the evaluation shows whether its accuracy is enough.
 - Low-confidence findings (below 0.5 for now) are marked and listed last; a person still decides.
 - Evaluation prints a cost estimate, needs `--yes`, and saves the answers so scores can be recomputed for free.
 
@@ -53,6 +54,7 @@ step, and a person decides on every finding.
 - PDF layouts: numbering styles the splitter missed (fixed: "1.DGT", "DUTIES.", tables of contents).
 - Rules that match the words but not the meaning ("governed by" appears in unrelated sentences).
 - The AI's confidence is its own estimate, so the threshold has to be checked against real results.
+- Cost versus accuracy in the model choice (Haiku 4.5 or Opus 5).
 - A solo team, and a lot of AI-written code to understand.
 
 ## Next

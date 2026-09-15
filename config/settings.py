@@ -155,7 +155,7 @@ MAX_UPLOAD_MB = 20
 AUTO_IDENTIFY = [method for method in os.environ.get('AUTO_IDENTIFY', 'rules,ai').split(',') if method]
 
 # The AI step. The Anthropic library reads the key from ANTHROPIC_API_KEY; it is never stored here.
-AI_MODEL = os.environ.get('AI_MODEL', 'claude-opus-5')
+AI_MODEL = os.environ.get('AI_MODEL', 'claude-haiku-4-5')
 # AI findings below this confidence are marked "low confidence" and listed last on the review page.
 # A person still decides on them. (Ambiguity log question 4; the threshold note.)
 AI_LOW_CONFIDENCE = float(os.environ.get('AI_LOW_CONFIDENCE', '0.5'))

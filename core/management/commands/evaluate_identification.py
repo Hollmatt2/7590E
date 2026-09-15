@@ -27,8 +27,11 @@ PLAYBOOK = settings.BASE_DIR / "seed" / "playbook.csv"
 CHECK_SET = settings.BASE_DIR / "seed" / "check_set.txt"
 SAVED = settings.BASE_DIR / "data" / "evaluations"
 THRESHOLDS = [0.5, 0.7, 0.9]  # AI confidence levels to report, for the threshold note (section 6.4)
-# Claude Opus 5 prices, dollars per million tokens: input, cache write, cache read, output.
-PRICES = {"input": 5.00, "cache_write": 6.25, "cache_read": 0.50, "output": 25.00}
+# Dollars per million tokens, by model: input, cache write, cache read, output.
+PRICES = {
+    "claude-haiku-4-5": {"input": 1.00, "cache_write": 1.25, "cache_read": 0.10, "output": 5.00},
+    "claude-opus-5": {"input": 5.00, "cache_write": 6.25, "cache_read": 0.50, "output": 25.00},
+}
 
 
 def percent(value):
@@ -36,10 +39,9 @@ def percent(value):
 
 
 def dollars(usage):
-    return (
-        usage["input"] * PRICES["input"] + usage["cache_write"] * PRICES["cache_write"]
-        + usage["cache_read"] * PRICES["cache_read"] + usage["output"] * PRICES["output"]
-    ) / 1_000_000
+    # A model missing from the table is costed at Opus 5 prices, so the estimate errs high.
+    prices = PRICES.get(settings.AI_MODEL, PRICES["claude-opus-5"])
+    return sum(usage[kind] * prices[kind] for kind in prices) / 1_000_000
 
 
 class Command(BaseCommand):

@@ -73,7 +73,7 @@ Everything that differs between a laptop and the deployed site is an environment
 | `DEMO_PASSWORD` | `calder-demo` | set your own |
 | `AUTO_IDENTIFY` | `rules,ai` | `rules,ai` |
 | `ANTHROPIC_API_KEY` | your Anthropic key, for the AI step | the same, set in Railway |
-| `AI_MODEL` | `claude-opus-5` | `claude-opus-5` |
+| `AI_MODEL` | `claude-haiku-4-5` | `claude-haiku-4-5` (or `claude-opus-5`) |
 | `AI_LOW_CONFIDENCE` | `0.5` | the threshold from the threshold note |
 
 Without `ANTHROPIC_API_KEY`, the app still works: the provisions the AI looks for wait for a person.

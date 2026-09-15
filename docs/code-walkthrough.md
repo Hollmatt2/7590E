@@ -67,11 +67,12 @@ instead of leaving the agreement stuck.
 **`core/rules.py`**: text rules, one regular expression per CUAD category a pattern can find. The finding is
 the whole sentence around the match. Measured by `evaluate_identification`.
 
-**`core/ai_identify.py`**: the AI step. It sends Claude (Opus 5) the playbook definitions and the agreement's
-numbered clauses, and asks for each provision found: the clause number, the exact quote, a confidence from 0
-to 1, and a one-sentence reason. The answer must match a fixed JSON shape, which the API enforces. The
-instructions are the same for every agreement, so they are cached and later requests cost less. If Claude
-declines, the API retries on another Claude model (`fallbacks: "default"`). Bad input: a quote that is not
+**`core/ai_identify.py`**: the AI step. It sends Claude (Haiku 4.5 by default; the `AI_MODEL` setting) the
+playbook definitions and the agreement's numbered clauses, and asks for each provision found: the clause
+number, the exact quote, a confidence from 0 to 1, and a one-sentence reason. The answer must match a fixed
+JSON shape, which the API enforces. The instructions are the same for every agreement and are marked for
+caching; the cache takes effect once they reach the model's minimum length. On models that support it (Opus
+5), a declined request is retried on another Claude model (`fallbacks: "default"`). Bad input: a quote that is not
 word for word in the agreement is dropped; a quote with the wrong clause number is moved to the clause that
 contains it; a provision not in the playbook is dropped; confidence is kept between 0 and 1. A missing key,
 network trouble, rate limits, a refusal, or a malformed answer all raise `AIUnavailable`, and the agreement
