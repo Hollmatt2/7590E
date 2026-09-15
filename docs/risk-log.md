@@ -15,6 +15,6 @@ rotated and recorded here (section 9).
 | 7 | One person does all building, documentation and presentations | solo team since 8/27 | | | | |
 | 8 | AI-written code that I cannot explain (brief §12.2, §12.3) | most modules are AI-generated (see the provenance log) | | | | |
 | 9 | CUAD scores reflect what models memorized (brief §6.3) | modified-agreement test not started | | | | |
-| 10 | Deployment: uploaded files and the reading step on Railway | not deployed yet; plan in `docs/deployment-runbook.md` | | | | |
+| 10 | A deployment setting mistake exposes the site | Deployed 2026-09-15. The first check from outside found debug mode on and the development secret key in use, because the Railway variables had not been set: logins could have been forged, and data was stored in a file inside the container that every redeploy wipes. Fixed the same day through the Railway CLI (new secret key, debug off, a private demo password, a Postgres database) and checked again from outside: debug pages gone, login cookie marked secure. An upload volume was added the same day. | | | | |
 | 11 | Source control started late (brief §9 requires Week 2) | repository created 2026-09-15 (github.com/Hollmatt2/7590E); the work of 9/12–9/14 went in as its first commit that day | | | | |
 | 12 | Usability sessions not done before 10/7 | not scheduled | | | | |
