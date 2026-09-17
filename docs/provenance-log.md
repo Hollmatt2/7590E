@@ -20,7 +20,7 @@ How each module was made:
 | `core/admin.py` | Shows the tables in Django's admin screen, including the playbook screen an administrator edits | Predominantly AI-generated | 2026-09-17 |
 | `core/migrations/` | Instructions that create and change the tables | Framework-generated (`makemigrations`, from `core/models.py`) | 2026-09-14 |
 | `core/urls.py` | The app's web addresses | Predominantly AI-generated | 2026-09-14 |
-| `core/views.py` | The pages: intake, submissions, agreement, identification, review, outcome, queue, reports | Predominantly AI-generated | 2026-09-14 |
+| `core/views.py` | The pages: intake, submissions, agreement with clause search, identification, review, outcome, queue, reports | Predominantly AI-generated | 2026-09-17 |
 | `core/forms.py` | Intake, findings, decision and outcome forms and their input checks | Predominantly AI-generated | 2026-09-14 |
 | `core/permissions.py` | Who may see and do what | Predominantly AI-generated | 2026-09-14 |
 | `core/review.py` | Review rules: decisions, outcomes, and the agreement's history | Predominantly AI-generated | 2026-09-14 |

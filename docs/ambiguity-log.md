@@ -38,9 +38,10 @@ Suppress, warn, or a separate queue? Ties to the threshold note.
 - Reasoning: Calder's stated fear is a real problem the system stays silent about, because that is what stops
   people trusting it. Hiding a finding is exactly that failure, and a separate queue is a queue nobody has time
   to work. Marking keeps the reviewer's attention ordered without the system deciding for them.
-- Consequence for the design: `AI_LOW_CONFIDENCE` (0.5) only affects display, never whether a finding is saved.
-  The review page marks those findings and sorts them last. The threshold note has to say what share of findings
-  that is and what it means in practice.
+- Consequence for the design: `AI_LOW_CONFIDENCE` (0.9 since 2026-09-17, see `docs/threshold-note.md`) only
+  affects display, never whether a finding is saved.
+  The review page marks those findings and sorts them last: about three in ten AI findings, holding most of
+  the wrong ones.
 
 ## 5. Document retention
 Is the uploaded agreement kept after disposition, and for how long? What does the record look like once it is gone?

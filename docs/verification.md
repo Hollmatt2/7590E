@@ -22,4 +22,5 @@ Where each of the four fixed requirements stands, and where the evidence is.
   command (`evaluate_modified`) and the instructions are ready.
 
 ## 6.4 Threshold note
-- `docs/threshold-note.md`: **not written**; needs the AI step's results.
+- `docs/threshold-note.md`: **written 2026-09-17**, from the check-set run. Threshold 0.9, marking only;
+  nothing is suppressed. To be revisited after the modified-agreement check.

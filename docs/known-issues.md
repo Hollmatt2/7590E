@@ -23,6 +23,9 @@ Written honestly, as the brief asks (section 11). Update it whenever something c
 - Playbook keywords are only as good as the words chosen. They are searched literally, so a category whose
   clauses share no common phrasing (uncapped liability) gains nothing from them; see `docs/playbook-selection.md`.
 
+- The clause search finds words, not meaning. It is exact about what it is asked for, which makes it a good
+  backstop for a specific suspicion and no substitute for identification.
+
 ## Review and record
 - A finished review cannot be reopened.
 - A finding's text and clause cannot be edited after it is added; it can only be dismissed with a reason.
