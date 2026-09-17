@@ -1,0 +1,136 @@
+/* The site's look: University of Georgia brand colors and typefaces.
+
+   Colors and fonts come from the UGA Brand Style Guide, brand.uga.edu/visual-identity/visual-style/
+   (checked 2026-09-17). Only the official values below are used, with no tints or shades.
+   The guide's rules followed here:
+   - Accent colors (here Olympic and Odyssey) stay under 20% of the design.
+   - Oswald is only used in its two approved weights, light (300) and medium (500).
+   - Georgia is the guide's serif "for documents and dense text", so it is used for contract text. */
+
+:root {
+  /* Primary */
+  --arch-black: #000000;
+  --bulldog-red: #BA0C2F;
+  --chapel-bell-white: #FFFFFF;
+  /* Neutral */
+  --stegeman: #9EA2A2;
+  --creamery: #D6D2C4;
+  --sanford: #554F47;
+  /* Accent */
+  --olympic: #004E60;
+  --odyssey: #C8D8EB;
+
+  --headline: "Oswald", "Arial Narrow", Arial, sans-serif;
+  --text: "Merriweather Sans", "Segoe UI", Arial, sans-serif;
+  --document: Georgia, "Times New Roman", serif;
+  --page-width: 72rem;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  display: flex; flex-direction: column; min-height: 100vh;  /* keeps the footer at the bottom on short pages */
+  margin: 0;
+  background: var(--chapel-bell-white);
+  color: var(--arch-black);
+  font-family: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.container { max-width: var(--page-width); margin: 0 auto; padding-inline: 1.25rem; }
+
+/* Header: a Bulldog Red rule, the full-color logo, the site name, and the signed-in user. */
+.site-header { border-top: 6px solid var(--bulldog-red); background: var(--chapel-bell-white); }
+.site-header .container { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.identity { display: flex; flex-wrap: wrap; align-items: center; }
+/* The guide's clear space for the extreme horizontal logo is the height of its shield on every side,
+   so the padding around the 28px-tall logo is 28px. */
+.identity .uga-logo { display: block; padding: 28px 28px 28px 0; }
+.identity .uga-logo img { display: block; height: 28px; width: auto; }
+.site-name { border-left: 1px solid var(--creamery); padding: 0.25rem 0 0.25rem 28px; text-decoration: none; color: var(--arch-black); }
+.site-name strong { display: block; font-family: var(--headline); font-weight: 500; font-size: 1.35rem; letter-spacing: 0.04em;
+                    text-transform: uppercase; line-height: 1.2; }
+.site-name span { display: block; font-size: 0.78rem; color: var(--sanford); }
+.account { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--sanford); }
+.account form { display: inline; margin: 0; }
+
+/* Navigation bar */
+.site-nav { background: var(--arch-black); }
+.site-nav .container { display: flex; flex-wrap: wrap; gap: 0 2rem; }
+.site-nav a { display: block; padding: 0.8rem 0 0.65rem; border-bottom: 3px solid transparent; color: var(--chapel-bell-white);
+              font-family: var(--headline); font-weight: 500; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase;
+              text-decoration: none; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { border-bottom-color: var(--bulldog-red); }
+
+main.container { flex: 1; width: 100%; padding-block: 2.5rem 4rem; }
+
+/* Headings */
+h1, h2, h3 { font-family: var(--headline); font-weight: 500; line-height: 1.25; }
+h1 { font-size: 2.1rem; text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 1.25rem; }
+h1::after { content: ""; display: block; width: 3rem; height: 3px; margin-top: 0.6rem; background: var(--bulldog-red); }
+h2 { font-size: 1.35rem; margin: 2rem 0 0.75rem; }
+h2 small { font-family: var(--text); font-size: 0.8rem; }
+
+/* Links */
+a { color: var(--bulldog-red); text-underline-offset: 0.18em; }
+a:hover { color: var(--arch-black); }
+:focus-visible { outline: 3px solid var(--olympic); outline-offset: 2px; }
+
+/* Tables */
+table { border-collapse: collapse; width: 100%; margin-block: 1rem; }
+th { font-family: var(--headline); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+     border-bottom: 2px solid var(--arch-black); }
+th, td { text-align: left; padding: 0.6rem 0.75rem 0.6rem 0; vertical-align: top; }
+td { border-bottom: 1px solid var(--creamery); }
+
+/* Forms */
+form p { margin: 0 0 1rem; }
+label { font-weight: 700; }
+input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]), select, textarea {
+  display: block; width: 100%; max-width: 36rem; margin-top: 0.3rem; padding: 0.5rem 0.65rem;
+  border: 1px solid var(--stegeman); border-radius: 0; background: var(--chapel-bell-white); color: var(--arch-black); font: inherit;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--olympic); }
+textarea { max-width: none; }
+input[type="radio"], input[type="checkbox"] { accent-color: var(--bulldog-red); margin-right: 0.4rem; }
+/* Django draws radio choices (accept, dismiss, escalate) as one label per line. */
+form div > div > label, form ul label { font-weight: 400; }
+.helptext { display: block; font-size: 0.8rem; color: var(--sanford); }
+
+button {
+  padding: 0.6rem 1.3rem; border: 0; border-radius: 0; background: var(--bulldog-red); color: var(--chapel-bell-white); cursor: pointer;
+  font-family: var(--headline); font-weight: 500; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+button:hover { background: var(--arch-black); }
+.account button { padding: 0; background: none; color: var(--bulldog-red); font-family: var(--text); font-size: inherit;
+                  letter-spacing: 0; text-transform: none; text-decoration: underline; text-underline-offset: 0.18em; }
+.account button:hover { background: none; color: var(--arch-black); }
+
+/* Messages and errors */
+.messages { list-style: none; padding: 0; margin: 0 0 1.5rem; }
+.messages li { padding: 0.75rem 1rem; border: 1px solid var(--creamery); border-left: 4px solid var(--olympic); }
+.messages li.error { border-left-color: var(--bulldog-red); }
+.errorlist { color: var(--bulldog-red); list-style: none; padding: 0; margin: 0.25rem 0; font-weight: 700; }
+
+/* Contract text */
+.clauses li, .clause-text { white-space: pre-line; font-family: var(--document); font-size: 0.98rem; }  /* keep the document's own line breaks */
+.clauses li { margin-bottom: 0.9rem; }
+blockquote { margin: 0.5rem 0 1rem; padding: 0.25rem 0 0.25rem 1rem; border-left: 4px solid var(--creamery); }
+mark { background: var(--odyssey); color: var(--arch-black); padding: 0 0.1em; }
+.finding { border-bottom: 1px solid var(--creamery); padding: 0.5rem 0 1.5rem; }
+.two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+.two-columns > section:first-child { max-height: 85vh; overflow-y: auto; padding-right: 1rem; }  /* the clauses scroll on their own */
+
+/* Footer: the white version of the logo on Arch Black, and a note that this is not an official UGA site. */
+.site-footer { background: var(--arch-black); color: var(--stegeman); font-size: 0.8rem; }
+.site-footer .container { display: flex; flex-wrap: wrap; align-items: center; gap: 0 2rem; }
+.site-footer .uga-logo { display: block; padding: 20px 20px 20px 0; }
+.site-footer .uga-logo img { display: block; height: 20px; width: auto; }
+.site-footer p { margin: 0; padding-block: 0.75rem; }
+
+@media (max-width: 50rem) {
+  .two-columns { grid-template-columns: 1fr; }
+  .site-name { border-left: 0; padding-left: 0; padding-bottom: 1rem; }
+  h1 { font-size: 1.7rem; }
+}

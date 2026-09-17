@@ -1,58 +1,69 @@
-<!doctype html>
+{% load static %}<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Calder Agreement Review{% endblock %}</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 72rem; margin: 0 auto; padding: 1rem; color: #1f2933; }
-    header { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; align-items: center;
-             border-bottom: 1px solid #d0d7de; padding-bottom: .5rem; margin-bottom: 1rem; }
-    nav { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-    nav form { display: inline; }
-    nav button { background: none; border: none; color: #0b5cad; cursor: pointer; font: inherit; padding: 0;
-                 text-decoration: underline; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
-    .messages { list-style: none; padding: 0; }
-    .messages li { background: #e8f3ea; border: 1px solid #b7dcbf; padding: .5rem .75rem; margin-bottom: .5rem; }
-    .messages li.error { background: #fdecea; border-color: #f3b8b3; }
-    .errorlist { color: #b42318; }
-    .clauses li, .clause-text { white-space: pre-line; }  /* keep the document's own line breaks */
-    .clauses li { margin-bottom: .75rem; }
-    mark { background: #fff1a8; }
-    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
-    .two-columns > section:first-child { max-height: 85vh; overflow-y: auto; }  /* the clauses scroll on their own */
-    @media (max-width: 50rem) { .two-columns { grid-template-columns: 1fr; } }
-    blockquote { margin: .25rem 0; padding-left: .75rem; border-left: 3px solid #d0d7de; }
-    textarea { width: 100%; box-sizing: border-box; }
-    .finding { border-bottom: 1px solid #e5e7eb; padding: .5rem 0; }
-  </style>
+  {# UGA's brand typefaces, from Google Fonts: Oswald (light and medium only) and Merriweather Sans. #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:ital,wght@0,400;0,700;1,400&family=Oswald:wght@300;500&display=swap">
+  <link rel="stylesheet" href="{% static 'core/site.css' %}">
 </head>
 <body>
-  <header>
-    <strong><a href="{% url 'home' %}">Calder Agreement Review</a></strong>
-    <nav>
-      {% if user.is_authenticated %}
-        {% if user.role != "requester" %}
-          <a href="{% url 'work_queue' %}">Work queue</a>
-          <a href="{% url 'reports' %}">Reports</a>
+  {% with page=request.resolver_match.url_name %}
+  <header class="site-header">
+    <div class="container">
+      <div class="identity">
+        {# The official logo file, unchanged (core/static/core/brand/README.md says where it came from). #}
+        <a class="uga-logo" href="https://www.uga.edu/">
+          <img src="{% static 'core/brand/UGAlogo_ExtremeHoriz_FC_MARCM.png' %}" alt="University of Georgia">
+        </a>
+        <a class="site-name" href="{% url 'home' %}">
+          <strong>Calder Agreement Review</strong>
+          <span>MIST 7590E AI Technology Capstone · Terry College of Business</span>
+        </a>
+      </div>
+      <div class="account">
+        {% if user.is_authenticated %}
+          <span>{{ user.username }} ({{ user.get_role_display }})</span>
+          {# Logging out changes data, so Django requires a form that POSTs, not a plain link. #}
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
+        {% else %}
+          <a href="{% url 'login' %}">Log in</a>
         {% endif %}
-        <a href="{% url 'submit_agreement' %}">Submit an agreement</a>
-        <a href="{% url 'my_submissions' %}">My submissions</a>
-        <span>{{ user.username }} ({{ user.get_role_display }})</span>
-        {# Logging out changes data, so Django requires a form that POSTs, not a plain link. #}
-        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
-      {% else %}
-        <a href="{% url 'login' %}">Log in</a>
-      {% endif %}
-    </nav>
+      </div>
+    </div>
   </header>
 
-  {% if messages %}
-    <ul class="messages">{% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}</ul>
+  {% if user.is_authenticated %}
+    <nav class="site-nav" aria-label="Main">
+      <div class="container">
+        {% if user.role != "requester" %}
+          <a href="{% url 'work_queue' %}"{% if page == "work_queue" %} aria-current="page"{% endif %}>Work queue</a>
+          <a href="{% url 'reports' %}"{% if page == "reports" %} aria-current="page"{% endif %}>Reports</a>
+        {% endif %}
+        <a href="{% url 'submit_agreement' %}"{% if page == "submit_agreement" %} aria-current="page"{% endif %}>Submit an agreement</a>
+        <a href="{% url 'my_submissions' %}"{% if page == "my_submissions" %} aria-current="page"{% endif %}>My submissions</a>
+      </div>
+    </nav>
   {% endif %}
+  {% endwith %}
 
-  <main>{% block content %}{% endblock %}</main>
+  <main class="container">
+    {% if messages %}
+      <ul class="messages">{% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a class="uga-logo" href="https://www.uga.edu/">
+        <img src="{% static 'core/brand/UGAlogo_ExtremeHoriz_CW_MARCM.png' %}" alt="University of Georgia">
+      </a>
+      <p>A student capstone project for a fictional company, Calder Industrial Supply. Not an official University of Georgia service.</p>
+    </div>
+  </footer>
 </body>
 </html>

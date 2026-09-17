@@ -30,7 +30,9 @@ How each module was made:
 | `core/auto_identify.py` | Runs automatic identification (rules and the AI) after a document is read | Predominantly AI-generated | 2026-09-15 |
 | `core/cuad.py` | Reads CUAD's labels and category descriptions | Predominantly AI-generated | 2026-09-14 |
 | `core/evaluation.py` | Scores identification against CUAD's labels and picks the check set | Predominantly AI-generated | 2026-09-14 |
-| `core/templates/` | The HTML pages | Predominantly AI-generated | 2026-09-14 |
+| `core/templates/` | The HTML pages | Predominantly AI-generated | 2026-09-17 (UGA header and footer in `base.html`) |
+| `core/static/core/site.css` | The site's look: UGA brand colors and typefaces | Predominantly AI-generated | 2026-09-17 |
+| `core/static/core/brand/` | University of Georgia logo files | Official files from UGA's brand download center, unchanged (see its README) | 2026-09-17 |
 | `core/templatetags/review_extras.py` | Highlights the supporting words inside a clause | Predominantly AI-generated | 2026-09-14 |
 | `core/management/commands/seed_demo.py` | Demo logins, playbook and sample agreements | Predominantly AI-generated | 2026-09-14 |
 | `core/management/commands/load_playbook.py` | Loads the playbook from `seed/playbook.csv` | Predominantly AI-generated | 2026-09-14 |
