@@ -38,8 +38,66 @@ Where each of the four fixed requirements stands, and where the evidence is.
   (`docs/playbook-selection.md`), which is what you would expect for a category with no shared phrasing.
 
 ## 6.3 Small independent check
-- 10 deliberately modified standard agreements in `seed/modified_agreements/`: **not started**. The scoring
-  command (`evaluate_modified`) and the instructions are ready.
+- **Done 2026-09-17.** Ten standard-form agreements from Bonterms and Common Paper, each changed on purpose,
+  in `seed/modified_agreements/`, with `answer_key.csv` recording every provision present and what was
+  changed. Scored with `python manage.py evaluate_modified`, which runs the same text rules and AI step the
+  app runs. Table: `docs/evaluation-modified-2026-09-17.md`.
+
+### What was changed
+
+| File | Change |
+|---|---|
+| `cloud-terms-delaware.txt` | Non-renewal notice cut from 30 days to 7; the uncapped-claims carve-out deleted, so every claim is capped |
+| `csa-free-assignment.txt` | Mutual assignment restriction replaced with a one-sided clause letting the provider assign freely |
+| `psa-no-insurance.txt` | The whole insurance obligation removed |
+| `psa-five-day-termination.txt` | Termination for convenience cut from 30 days' notice to 5 |
+| `dpa-no-audit.txt` | The customer's audit right removed and replaced with an express denial |
+| `dpa-restricted-audit.txt` | Audits restricted to once every three years on 90 days' notice |
+| `nda-no-change-of-control.txt` | The change-of-control exception to the assignment ban removed |
+| `nda-auto-renewing.txt` | An auto-renewal with a 45-day non-renewal notice inserted |
+| `sla-uncapped-liability.txt` | An uncapped liability carve-out inserted |
+| `sla-with-audit-right.txt` | An audit right inserted |
+
+### Does performance hold?
+
+Mostly yes, and the place it fails is the place CUAD said it would.
+
+- **Holds or improves** on the provisions defined by their own wording. Governing law 7 of 7, renewal term 3
+  of 3, notice period 3 of 3, assignment restriction 5 of 5, termination for convenience 5 of 5 (against 63%
+  on CUAD). Inserted provisions were found: the auto-renewal and notice period written into an NDA, and the
+  audit right written into an SLA.
+- **Does not hold** for uncapped liability: 1 of the 4 files that contain it. On CUAD it was 30%. The
+  inserted carve-out in `sla-uncapped-liability.txt` ("not subject to the limitations of liability in the
+  Cloud Terms and is unlimited") was missed even though it is about as explicit as that provision gets.
+- **Change of control**: 2 of 4, similar to CUAD's 60%.
+- **Audit rights** (text rule): 1 of 2. The rule wants an audit word near "books", "records" or "accounts",
+  and the restricted-audit DPA says "audits, including inspections by Customer", so the rule misses it.
+
+### Three findings worth reporting
+
+1. **The system reads topic, not direction.** In `csa-free-assignment.txt` the assignment restriction was
+   replaced by a clause that lets the provider assign freely, with no consent and no notice. The system still
+   flagged assignment restriction. It saw that the contract talks about assignment; it did not notice that the
+   protection had been inverted. A reviewer reading the quoted words would catch it in seconds, which is the
+   argument for every finding carrying its source text.
+2. **Removals are handled better than inversions.** Where a protection was deleted outright (insurance, the
+   audit right, the uncapped-claims carve-out), the system did not flag it: insurance 0 false flags across 9
+   files, audit rights 0 across 8.
+3. **The cap is identified, but the quote moves.** Cap on liability was flagged in all 4 files that contain
+   it, but never with the sentence the answer key records: the model quotes the definition of the cap rather
+   than the clause that imposes it. Presence is right; "the exact words" is a judgment call between two
+   sentences that both show the provision. The answer key records one quote per provision, which is stricter
+   than a reviewer would be.
+
+### Honest notes about this test
+
+- Three false governing-law flags come from cover pages added when the files were made, which say
+  "Governing Law: as set out in the Cloud Terms". No state is named, so the answer key counts that as absent,
+  and the system flags it. Both readings are defensible, and it is a good example of a label being debatable.
+- The AI step is not deterministic. Three runs of uncapped liability on the same ten files gave 0, 2 and 1 of
+  4. Small counts move; the conclusion that this category is unreliable does not.
+- Ten files is a small set, and the changes were made by the same person who chose the playbook. It is a check
+  against memorization, not a second opinion.
 
 ## 6.4 Threshold note
 - `docs/threshold-note.md`: **written 2026-09-17**, from the check-set run. Threshold 0.9, marking only;

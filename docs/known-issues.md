@@ -26,6 +26,9 @@ Written honestly, as the brief asks (section 11). Update it whenever something c
 - The clause search finds words, not meaning. It is exact about what it is asked for, which makes it a good
   backstop for a specific suspicion and no substitute for identification.
 
+- The system identifies the topic of a clause, not which way the obligation runs. An assignment clause that
+  permits free assignment is still flagged as an assignment restriction (`docs/verification.md`, 6.3).
+
 ## Review and record
 - A finished review cannot be reopened.
 - A revised contract submitted again is a separate agreement with no link to the original, so a reviewer

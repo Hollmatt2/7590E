@@ -90,13 +90,16 @@ read. Between a reviewer's hour and an unlimited liability, Calder chose the hou
 > because the clause you are looking for may not use your words.
 >
 > And one caveat on the numbers themselves: they come from a public contract set the model may have seen in
-> training. The modified-agreement test (brief section 6.3) is what will tell us whether these numbers hold on
-> contracts it has never seen. Until that is done, treat them as an upper bound.
+> training. We have since run ten deliberately modified standard agreements it cannot have seen
+> (`docs/verification.md`, section 6.3): the provisions defined by their own wording held up, and uncapped
+> liability did not, which is the same weakness the public set showed. One thing that test found: when a
+> protection was inverted rather than removed, the system still flagged the provision. It recognizes the
+> topic, not the direction. That is another reason to read the quoted words rather than the flag.
 
 ## What would change the threshold
 
-- The modified-agreement results. If confidence predicts correctness less well on unseen contracts, 0.9 is
-  re-argued on those numbers.
+- Reviewer experience on the modified-agreement findings: the test showed the system flags the right topic
+  with the wrong direction, so the threshold is about confidence, not correctness of meaning.
 - Reviewer experience. If reviewers report that the marked findings are worth reading after all, the line
   moves down; if they ignore everything below it, the line is doing its job.
 - A category moving between methods, since the threshold only applies to AI findings.

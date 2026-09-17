@@ -48,7 +48,7 @@ Status as of 2026-09-17.
 | 6.2 Two numbers per category, for each method | Done | `docs/evaluation-rules-*.md`, `docs/evaluation-ai-2026-09-17.md` |
 | 6.2 Say which categories are handled reliably and which are not, and why | Done | `docs/verification.md` |
 | 6.2 Do not report a single overall accuracy figure | Done | Every table is per category |
-| 6.3 Ten deliberately modified standard agreements, and whether performance holds | **Not started** | 11 base files and the `evaluate_modified` command are ready; the answer key is empty |
+| 6.3 Ten deliberately modified standard agreements, and whether performance holds | Done | `seed/modified_agreements/`, results and analysis in `docs/verification.md` |
 | 6.4 Threshold note, one to two pages, four questions | Done | `docs/threshold-note.md` |
 
 ## Section 8: scope, required for a complete project
@@ -63,7 +63,7 @@ Status as of 2026-09-17.
 | Durable, attributable audit record of all review decisions | Done |
 | Reporting views for Procurement and Legal | Done |
 | Deployed and reachable at a URL, seeded with demo data and an account for each role | Done: web-production-48b18.up.railway.app, four demo logins |
-| Verification results per Section 6 | Partial: 6.3 outstanding |
+| Verification results per Section 6 | Partial: only the 6.1 label spot-check outstanding |
 
 ## Section 9: technical constraints (Fixed)
 
