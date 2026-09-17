@@ -29,6 +29,9 @@ Written honestly, as the brief asks (section 11). Update it whenever something c
 - The system identifies the topic of a clause, not which way the obligation runs. An assignment clause that
   permits free assignment is still flagged as an assignment restriction (`docs/verification.md`, 6.3).
 
+- Tagging works inside one clause at a time. A selection that crosses two clauses is ignored rather than
+  split, and there is no whole-document markup view yet (sponsor feedback, 2026-09-17).
+
 ## Review and record
 - A finished review cannot be reopened.
 - A revised contract submitted again is a separate agreement with no link to the original, so a reviewer
