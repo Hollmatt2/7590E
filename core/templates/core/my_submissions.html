@@ -16,7 +16,7 @@
           <td>{{ agreement.get_agreement_type_display }}</td>
           <td>{{ agreement.needed_by|date:"M j, Y" }}</td>
           <td>{{ agreement.submitted_at|date:"M j, Y" }}</td>
-          <td>{{ agreement.get_status_display }}</td>
+          <td><span class="status status-{{ agreement.status }}">{{ agreement.get_status_display }}</span></td>
         </tr>
       {% endfor %}
     </tbody>

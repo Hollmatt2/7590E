@@ -52,6 +52,7 @@ body {
 .site-name strong { display: block; font-family: var(--headline); font-weight: 500; font-size: 1.35rem; letter-spacing: 0.04em;
                     text-transform: uppercase; line-height: 1.2; }
 .site-name span { display: block; font-size: 0.78rem; color: var(--sanford); }
+.account strong { color: var(--arch-black); }
 .account { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--sanford); }
 .account form { display: inline; margin: 0; }
 
@@ -79,10 +80,11 @@ a:hover { color: var(--arch-black); }
 
 /* Tables */
 table { border-collapse: collapse; width: 100%; margin-block: 1rem; }
-th { font-family: var(--headline); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
-     border-bottom: 2px solid var(--arch-black); }
-th, td { text-align: left; padding: 0.6rem 0.75rem 0.6rem 0; vertical-align: top; }
-td { border-bottom: 1px solid var(--creamery); }
+th, td { text-align: left; padding: 0.7rem 1rem 0.7rem 0; vertical-align: top; border-bottom: 1px solid var(--creamery); }
+thead th { font-family: var(--headline); font-weight: 500; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+           border-bottom: 2px solid var(--arch-black); }
+/* A details table (label, value) has no heading row: its labels sit in the first column. */
+tbody th { width: 13rem; font-weight: 400; color: var(--sanford); }
 
 /* Forms */
 form p { margin: 0 0 1rem; }
@@ -103,6 +105,28 @@ button {
   font-family: var(--headline); font-weight: 500; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase;
 }
 button:hover { background: var(--arch-black); }
+a.button { display: inline-block; padding: 0.6rem 1.3rem; background: var(--bulldog-red); color: var(--chapel-bell-white);
+           font-family: var(--headline); font-weight: 500; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase;
+           text-decoration: none; }
+a.button:hover { background: var(--arch-black); color: var(--chapel-bell-white); }
+input[type="file"] { padding: 0.45rem 0.65rem; }
+input[type="file"]::file-selector-button {
+  margin-right: 0.9rem; padding: 0.35rem 0.9rem; border: 1px solid var(--arch-black); background: var(--chapel-bell-white); cursor: pointer;
+  font-family: var(--headline); font-weight: 500; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+input[type="file"]::file-selector-button:hover { background: var(--arch-black); color: var(--chapel-bell-white); }
+/* Radio choices (accept, dismiss, escalate; the outcomes) sit side by side. */
+div:has(> div > label > input[type="radio"]) { display: flex; flex-wrap: wrap; gap: 0.25rem 1.75rem; margin-top: 0.4rem; }
+.panel { max-width: 28rem; margin: 1rem auto 0; padding: 2rem; border: 1px solid var(--creamery); border-top: 4px solid var(--bulldog-red); }
+.panel h1 { font-size: 1.7rem; }
+.lead { max-width: 44rem; font-size: 1.05rem; }
+
+/* Status labels */
+.status { display: inline-block; padding: 0.1rem 0.55rem; border: 1px solid var(--sanford); color: var(--sanford); white-space: nowrap;
+          font-family: var(--headline); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.status-in_review { border-color: var(--olympic); color: var(--olympic); }
+.status-escalated, .status-read_failed { border-color: var(--bulldog-red); color: var(--bulldog-red); }
+.status-cleared, .status-cleared_conditions { border-color: var(--arch-black); background: var(--arch-black); color: var(--chapel-bell-white); }
 .account button { padding: 0; background: none; color: var(--bulldog-red); font-family: var(--text); font-size: inherit;
                   letter-spacing: 0; text-transform: none; text-decoration: underline; text-underline-offset: 0.18em; }
 .account button:hover { background: none; color: var(--arch-black); }
@@ -115,7 +139,10 @@ button:hover { background: var(--arch-black); }
 
 /* Contract text */
 .clauses li, .clause-text { white-space: pre-line; font-family: var(--document); font-size: 0.98rem; }  /* keep the document's own line breaks */
-.clauses li { margin-bottom: 0.9rem; }
+.clauses { list-style: none; padding: 0; margin: 0; counter-reset: clause; }
+.clauses li { counter-increment: clause; padding: 0.9rem 0; border-top: 1px solid var(--creamery); }
+.clauses li::before { content: "Clause " counter(clause); display: block; margin-bottom: 0.3rem; white-space: normal; color: var(--bulldog-red);
+                      font-family: var(--headline); font-weight: 500; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
 blockquote { margin: 0.5rem 0 1rem; padding: 0.25rem 0 0.25rem 1rem; border-left: 4px solid var(--creamery); }
 mark { background: var(--odyssey); color: var(--arch-black); padding: 0 0.1em; }
 .finding { border-bottom: 1px solid var(--creamery); padding: 0.5rem 0 1.5rem; }
@@ -132,5 +159,6 @@ mark { background: var(--odyssey); color: var(--arch-black); padding: 0 0.1em; }
 @media (max-width: 50rem) {
   .two-columns { grid-template-columns: 1fr; }
   .site-name { border-left: 0; padding-left: 0; padding-bottom: 1rem; }
+  tbody th { width: auto; }
   h1 { font-size: 1.7rem; }
 }

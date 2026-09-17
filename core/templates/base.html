@@ -26,28 +26,28 @@
       </div>
       <div class="account">
         {% if user.is_authenticated %}
-          <span>{{ user.username }} ({{ user.get_role_display }})</span>
+          <span>Signed in as <strong>{{ user.username }}</strong> · {{ user.get_role_display }}</span>
           {# Logging out changes data, so Django requires a form that POSTs, not a plain link. #}
           <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
-        {% else %}
-          <a href="{% url 'login' %}">Log in</a>
         {% endif %}
       </div>
     </div>
   </header>
 
-  {% if user.is_authenticated %}
-    <nav class="site-nav" aria-label="Main">
-      <div class="container">
+  <nav class="site-nav" aria-label="Main">
+    <div class="container">
+      {% if user.is_authenticated %}
         {% if user.role != "requester" %}
           <a href="{% url 'work_queue' %}"{% if page == "work_queue" %} aria-current="page"{% endif %}>Work queue</a>
           <a href="{% url 'reports' %}"{% if page == "reports" %} aria-current="page"{% endif %}>Reports</a>
         {% endif %}
         <a href="{% url 'submit_agreement' %}"{% if page == "submit_agreement" %} aria-current="page"{% endif %}>Submit an agreement</a>
         <a href="{% url 'my_submissions' %}"{% if page == "my_submissions" %} aria-current="page"{% endif %}>My submissions</a>
-      </div>
-    </nav>
-  {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}"{% if page == "login" %} aria-current="page"{% endif %}>Log in</a>
+      {% endif %}
+    </div>
+  </nav>
   {% endwith %}
 
   <main class="container">
