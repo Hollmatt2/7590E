@@ -13,7 +13,7 @@ from django.db import transaction
 
 from .ai_identify import AIUnavailable, find_with_ai
 from .models import Agreement, Flag, Provision
-from .rules import COMPILED, find_with_rules
+from .rules import COMPILED, compile_keywords, find_with_keywords, find_with_rules
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +72,21 @@ def identify_automatically(agreement):
                     finding.reason or "Identified by the AI model.", confidence=finding.confidence,
                 ))
             covered.update(provision.pk for provision in ai_provisions)
+
+    # Playbook keywords run for every provision that has them, whatever its method, and never
+    # repeat a finding another method already made.
+    keywords = {p: compile_keywords(p.keywords.splitlines()) for p in provisions if p.keywords.strip()}
+    if keywords:
+        already = {(flag.provision_id, flag.clause_id, flag.source_text) for flag in flags}
+        for clause in clauses:
+            for provision, sentence, phrase in find_with_keywords(clause.text, keywords):
+                if (provision.pk, clause.pk, sentence) in already:
+                    continue
+                already.add((provision.pk, clause.pk, sentence))
+                reason = f'Matched the playbook keyword "{phrase}" for {provision.name}.'
+                flags.append(make_flag(agreement, provision, clause, sentence, Flag.Source.KEYWORD, reason))
+        # A provision looked for by text alone counts as checked once its keywords have run.
+        covered.update(p.pk for p in keywords if p.method == Provision.Method.RULES)
 
     every_method_ran = all(provision.pk in covered for provision in provisions)
     with transaction.atomic():

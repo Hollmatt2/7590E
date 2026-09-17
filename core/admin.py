@@ -24,4 +24,18 @@ class FlagAdmin(admin.ModelAdmin):
     list_filter = ("kind", "severity", "status", "source")
 
 
-admin.site.register([Provision, Clause, FlagDecision, Disposition])
+@admin.register(Provision)
+class ProvisionAdmin(admin.ModelAdmin):
+    """The playbook. Severity, method and keywords are the settings an administrator changes."""
+
+    list_display = ("name", "cuad_category", "default_severity", "method", "keyword_count")
+    list_filter = ("default_severity", "method")
+    fields = ("name", "cuad_category", "default_severity", "method", "keywords", "definition",
+              "standard_position", "required")
+
+    @admin.display(description="Keywords")
+    def keyword_count(self, provision):
+        return len([line for line in provision.keywords.splitlines() if line.strip()])
+
+
+admin.site.register([Clause, FlagDecision, Disposition])

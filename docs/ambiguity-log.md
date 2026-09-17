@@ -33,12 +33,14 @@ One organization-wide standard per provision, or different standards per agreeme
 ## 4. Low-confidence handling
 Suppress, warn, or a separate queue? Ties to the threshold note.
 - What the app does now: warn. AI findings below 0.5 confidence (the `AI_LOW_CONFIDENCE` setting) are
-  marked "Low confidence" and listed last on the review page; a person still decides on each. Rule and
-  manual findings have no confidence score.
-- Options considered:
-- Decision:
-- Reasoning:
-- Consequence for the design:
+- Options considered: hide findings below the threshold; send them to a separate queue; show them, marked, ordered last.
+- Decision: show every finding, mark the low-confidence ones "check carefully", and list them last (2026-09-17).
+- Reasoning: Calder's stated fear is a real problem the system stays silent about, because that is what stops
+  people trusting it. Hiding a finding is exactly that failure, and a separate queue is a queue nobody has time
+  to work. Marking keeps the reviewer's attention ordered without the system deciding for them.
+- Consequence for the design: `AI_LOW_CONFIDENCE` (0.5) only affects display, never whether a finding is saved.
+  The review page marks those findings and sorts them last. The threshold note has to say what share of findings
+  that is and what it means in practice.
 
 ## 5. Document retention
 Is the uploaded agreement kept after disposition, and for how long? What does the record look like once it is gone?

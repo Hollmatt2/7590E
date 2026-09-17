@@ -17,7 +17,7 @@ How each module was made:
 | `config/urls.py` | Maps web addresses to code | Framework-generated; AI-edited to add the login pages and the `core` app | 2026-09-14 |
 | `config/asgi.py`, `config/wsgi.py` | How a web host starts the app | Framework-generated (`startproject`) | 2026-09-12 |
 | `core/models.py` | Database tables: users and roles, playbook, agreements, clauses, flags, decisions, dispositions | Predominantly AI-generated; updated for Change Notice 1 | 2026-09-14 |
-| `core/admin.py` | Shows the tables in Django's admin screen | Predominantly AI-generated | 2026-09-12 |
+| `core/admin.py` | Shows the tables in Django's admin screen, including the playbook screen an administrator edits | Predominantly AI-generated | 2026-09-17 |
 | `core/migrations/` | Instructions that create and change the tables | Framework-generated (`makemigrations`, from `core/models.py`) | 2026-09-14 |
 | `core/urls.py` | The app's web addresses | Predominantly AI-generated | 2026-09-14 |
 | `core/views.py` | The pages: intake, submissions, agreement, identification, review, outcome, queue, reports | Predominantly AI-generated | 2026-09-14 |

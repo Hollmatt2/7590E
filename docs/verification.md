@@ -11,8 +11,9 @@ Where each of the four fixed requirements stands, and where the evidence is.
   Notes:
 
 ## 6.2 Two numbers per category
-- Text rules: `docs/evaluation-rules-2026-09-14.md`.
-- AI step: not built yet.
+- Text rules: `docs/evaluation-rules-2026-09-14.md` (eight categories) and `docs/evaluation-rules-2026-09-17.md`
+  (the text pass under the ten-category playbook, including the keyword experiment).
+- AI step: `docs/evaluation-ai-2026-09-17.md`, all twelve categories then in the playbook, Claude Haiku 4.5, $0.88.
 - Which categories the system handles reliably, which it does not, and the best explanation for the
   difference (Matt): **not written**.
 

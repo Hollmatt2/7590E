@@ -54,6 +54,38 @@ def sentence_around(text, start, end):
     return text[begin:finish].strip()
 
 
+def compile_keywords(phrases):
+    """Compile playbook keywords into patterns: spacing is flexible, capitals do not matter, and a
+    phrase also matches the start of a longer word, so "indemnif" finds "indemnification"."""
+    patterns = []
+    for phrase in phrases:
+        words = phrase.split()
+        if not words:
+            continue
+        pattern = r"\s+".join(re.escape(word) for word in words)
+        if words[0][0].isalnum():
+            pattern = r"\b" + pattern
+        patterns.append((phrase, re.compile(pattern, re.IGNORECASE)))
+    return patterns
+
+
+def find_with_keywords(text, by_key):
+    """Return (key, sentence, phrase) for each keyword match in `text`, once per sentence and key.
+
+    `by_key` maps anything (a provision, a category name) to the patterns from compile_keywords.
+    """
+    found = []
+    for key, patterns in by_key.items():
+        seen = set()
+        for phrase, pattern in patterns:
+            for match in pattern.finditer(text):
+                sentence = sentence_around(text, *match.span())
+                if sentence and sentence not in seen:
+                    seen.add(sentence)
+                    found.append((key, sentence, phrase))
+    return found
+
+
 def find_with_rules(text, categories):
     """Return (category, sentence) for each rule in `categories` that matches `text`, once per sentence."""
     found = []

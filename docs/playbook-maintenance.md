@@ -34,3 +34,25 @@ Changing the playbook does not re-run earlier reviews. Their findings and decisi
 If a provision can be found with a pattern, add the pattern to `RULES` in `core/rules.py`, add a typical
 sentence to `RuleTests` in `core/test_auto.py`, and measure it with `evaluate_identification`. Test a
 changed rule on contracts outside the check set, or the score will look better than it is.
+
+## Keywords (added 2026-09-17)
+
+Each provision can carry keywords: words or phrases searched in every clause, whatever the provision's
+method is. They are for a category where a word list genuinely helps, and for an administrator who needs to
+react to something without waiting for a developer.
+
+Two ways to set them:
+
+- **In the running site.** Log in as the administrator, open `/admin/`, choose Provisions, open the provision,
+  and type one word or phrase per line in Keywords. It takes effect on the next agreement read.
+- **In `seed/playbook.csv`.** Put them in the `keywords` column separated by semicolons, then run
+  `python manage.py load_playbook`. The deployed site does this on every restart, so the CSV wins in the end:
+  anything typed in the admin screen and not written into the CSV is overwritten on the next deploy.
+
+How matching works: capital letters and spacing do not matter, and a word also matches the start of a longer
+one, so "indemnif" finds "indemnification". A keyword finding is labelled "Playbook keyword" and never repeats
+a finding the rules or the AI already made.
+
+Measure before trusting: `python manage.py evaluate_identification --method rules` scores the text pass,
+keywords included. The uncapped liability attempt on 2026-09-17 found none of the labeled clauses and every
+flag it raised was wrong (`docs/playbook-selection.md`), which is why that category has no keywords.

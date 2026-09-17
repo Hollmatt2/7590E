@@ -38,6 +38,11 @@ class Provision(models.Model):
     # How the system looks for it automatically: the brief's rules-versus-model split (section 9).
     method = models.CharField(max_length=10, choices=Method, default=Method.AI)
 
+    # Words an administrator wants looked for as well, one per line. They run whatever the method is,
+    # so a category the AI is weak at (uncapped liability) still gets a text pass. A word matches the
+    # start of a longer word too, so "indemnif" finds "indemnification".
+    keywords = models.TextField(blank=True)
+
     # Stretch work since Change Notice 1 (9/9): comparing against standard positions, and gap detection.
     # Kept so that work has a place to go later. Nothing in the required workflow uses these two fields.
     standard_position = models.TextField(blank=True)  # the version Calder accepts
@@ -110,6 +115,7 @@ class Flag(models.Model):
 
     class Source(models.TextChoices):
         RULE = "rule", "Text rule"
+        KEYWORD = "keyword", "Playbook keyword"
         AI = "ai", "AI model"
         MANUAL = "manual", "Marked by a person"
 

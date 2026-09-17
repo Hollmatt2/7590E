@@ -21,7 +21,7 @@ from django.core.management.base import BaseCommand, CommandError
 from core import evaluation
 from core.ai_identify import AIUnavailable, find_with_ai
 from core.cuad import CUAD_JSON
-from core.rules import RULES, find_with_rules
+from core.rules import RULES, compile_keywords, find_with_keywords, find_with_rules
 
 PLAYBOOK = settings.BASE_DIR / "seed" / "playbook.csv"
 CHECK_SET = settings.BASE_DIR / "seed" / "check_set.txt"
@@ -70,10 +70,18 @@ class Command(BaseCommand):
         titles = titles[: options["limit"]] if options["limit"] else titles
 
         if options["method"] == "rules":
-            measured = [category for category in categories if category in RULES]
+            # The text pass is the compiled rules plus any keywords the playbook carries.
+            keywords = {}
+            for row in playbook:
+                patterns = compile_keywords([k.strip() for k in (row.get("keywords") or "").split(";") if k.strip()])
+                if patterns:
+                    keywords[row["cuad_category"].strip()] = patterns
+            measured = sorted({category for category in categories if category in RULES} | set(keywords))
 
             def finder(clauses):
-                return [(category, words, None) for clause in clauses for category, words in find_with_rules(clause, measured)]
+                found = [(category, words, None) for clause in clauses for category, words in find_with_rules(clause, measured)]
+                found += [(category, words, None) for clause in clauses for category, words, _ in find_with_keywords(clause, keywords)]
+                return found
 
             predictions, usage = evaluation.predict(titles, finder), None
         else:

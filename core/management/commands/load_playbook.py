@@ -40,9 +40,22 @@ class Command(BaseCommand):
             if descriptions and category not in descriptions:
                 self.stdout.write(self.style.WARNING(f"{name}: {category!r} is not a CUAD category"))
             definition = (row.get("definition") or "").strip() or descriptions.get(category, "")
+            # Keywords are semicolon-separated in the CSV and stored one per line.
+            keywords = "\n".join(k.strip() for k in (row.get("keywords") or "").split(";") if k.strip())
             _, created = Provision.objects.update_or_create(
                 name=name,
                 defaults={"cuad_category": category, "default_severity": severity, "method": method,
-                          "definition": definition},
+                          "definition": definition, "keywords": keywords},
             )
             self.stdout.write(f"{'Added' if created else 'Updated'} {name} ({method})")
+
+        # The CSV is the source of truth, so a provision it no longer lists leaves the playbook.
+        # One that already has findings against it stays, because deleting it would delete review history.
+        listed = {row["name"].strip() for row in rows}
+        for provision in Provision.objects.exclude(name__in=listed):
+            if provision.flags.exists():
+                self.stdout.write(self.style.WARNING(
+                    f"{provision.name}: no longer in the playbook, but it has findings, so it was kept."))
+            else:
+                provision.delete()
+                self.stdout.write(f"Removed {provision.name}, no longer in the playbook")

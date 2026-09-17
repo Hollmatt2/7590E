@@ -14,13 +14,14 @@ Written honestly, as the brief asks (section 11). Update it whenever something c
 ## Identification
 - The text rules miss 20–68% of labeled clauses, and 22–73% of their flags are wrong, depending on the
   category (`docs/evaluation-rules-2026-09-14.md`). They are not reliable on their own.
-- The AI step (Claude Haiku 4.5 by default) looks for four categories: cap on liability, uncapped liability, exclusivity,
-  and warranty duration. It has not been measured on the check set yet; the development laptop had no API key
-  on 2026-09-15. Without a key, those categories wait for a person.
+- The AI step (Claude Haiku 4.5 by default) looks for eight of the ten playbook categories; text rules cover
+  insurance and audit rights. Measured on the 40-contract check set on 2026-09-17
+  (`docs/evaluation-ai-2026-09-17.md`). Without an API key those eight categories wait for a person.
 - The AI's confidence score is its own estimate. How well it predicts correctness has not been measured yet.
 - Findings removed on the identification screen are deleted, so the record does not keep wrong automatic
   findings that were removed before review.
-- The playbook is a placeholder: the brief's suggested categories, all at medium severity.
+- Playbook keywords are only as good as the words chosen. They are searched literally, so a category whose
+  clauses share no common phrasing (uncapped liability) gains nothing from them; see `docs/playbook-selection.md`.
 
 ## Review and record
 - A finished review cannot be reopened.

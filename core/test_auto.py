@@ -119,6 +119,31 @@ class AutomaticIdentificationTests(TestCase):
         )
 
     @patch("core.ai_identify.credentials_configured", return_value=False)
+    def test_playbook_keywords_are_found_whatever_the_method(self, _):
+        """An administrator's keywords run even for a provision the AI usually handles."""
+        self.cap.keywords = "shall not be limited\nunlimited liability"
+        self.cap.save(update_fields=["keywords"])
+        Clause.objects.create(
+            agreement=self.agreement, position=3,
+            text="The Supplier's liability for breach of confidentiality shall not be limited in any way.",
+        )
+        identify_automatically(self.agreement)
+        flag = Flag.objects.get(source=Flag.Source.KEYWORD)
+        self.assertEqual(flag.provision, self.cap)
+        self.assertIn("shall not be limited", flag.source_text)
+        self.assertIn('keyword "shall not be limited"', flag.reason)
+
+    @patch("core.ai_identify.credentials_configured", return_value=True)
+    @patch("core.ai_identify.ask_claude")
+    def test_a_keyword_does_not_repeat_a_finding_another_method_made(self, ask, _):
+        self.cap.keywords = "capped at the fees"
+        self.cap.save(update_fields=["keywords"])
+        ask.return_value = answer(("Cap on liability", 2, "Liability is capped at the fees paid.", 0.9, "A cap."))
+        identify_automatically(self.agreement)
+        cap_flags = Flag.objects.filter(provision=self.cap)
+        self.assertEqual([flag.source for flag in cap_flags], [Flag.Source.AI])
+
+    @patch("core.ai_identify.credentials_configured", return_value=False)
     def test_when_the_ai_is_unavailable_rule_findings_wait_for_a_person(self, _):
         note = identify_automatically(self.agreement)
         flag = Flag.objects.get()
