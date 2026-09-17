@@ -89,8 +89,14 @@ made on measurements in week 4 rather than in November.
 - Calder's two stated problems, uncapped liability and renewal notice periods, are among the rarest at 22%
 - Indemnification, which the brief suggests, has no CUAD label at all, so it cannot be measured
 - The check set of 40 contracts was built so every chosen category has at least 12 examples
+- **Decision: ten categories.** Exclusivity and warranty duration are scoped out: Calder never raised either,
+  and both measured worst (46% and 67% of flags wrong). They stay in the backlog, one row each to add back
+- Severity is set, not left at medium: high only for the four provisions behind Calder's two stated failures,
+  the liability pair and the renewal pair; low for governing law and audit rights
+- Reasons per category: `docs/playbook-selection.md`
 
-**Say (your decision here):** I kept __ categories. I chose them by ____.
+**Say:** I kept ten. Calder's own story decides what belongs in the playbook, and the corpus counts decide
+whether I can prove anything about it. Both tests had to pass.
 
 ---
 
@@ -107,7 +113,12 @@ made on measurements in week 4 rather than in November.
 - Measured the same way on the same 40 contracts, against lawyers' labels
 - Rules are fast and free but match words, not meaning: "governed by" turns up in unrelated sentences
 - The model wins nearly everywhere; insurance is the one place the rule finds more
+- **Decision: eight categories on the model, two on rules.** Insurance stays on a rule because it finds more
+  and Calder fears a miss more than noise; audit rights stays because the two tie and the rule is free
 - Each playbook entry carries its own method, so the split is a setting, not a rewrite
+- Added today: an administrator can add keywords to any category without a developer. Tried it on uncapped
+  liability and measured it: 0 of 20 labeled clauses found, every flag raised was wrong, so the keywords were
+  removed. Those clauses are carve-outs written dozens of ways; there is no shared phrase to match
 
 **Say:** The brief asked us to decide per category rather than route everything through a model. This is that
 decision, with numbers behind it.
@@ -117,7 +128,8 @@ decision, with numbers behind it.
 ## Slide 9 — Confidence, and where it gets weak
 
 - Every AI finding carries a confidence score and the exact quote; quotes that are not in the contract are dropped
-- Weakest categories as measured: uncapped liability 26% found with 75% of flags wrong, warranty duration 37% with 67% wrong
+- Weakest category kept: uncapped liability, 26% found with 75% of flags wrong. It stays because it is one of
+  Calder's two stated problems; dropping it to improve the average would leave the client worse off
 - Raising the bar to 0.9 confidence: governing law 90% found with no wrong flags, auto-renewal 71% with none,
   cap on liability's wrong flags fall from 28% to 4%
 - Today the app marks findings below 0.5 as low confidence and lists them last; a person still decides
@@ -131,7 +143,8 @@ is the number I would most want to improve, and the threshold note will argue wh
 ## Slide 10 — Blockers and what is next
 
 - Blockers: one-person team; the categories with few labeled examples are the ones the client cares most about;
-  the model's confidence is its own estimate and still has to be checked against results
+  the model's confidence is its own estimate and still has to be checked against results; neither method is
+  reliable on uncapped liability, and a word list does not fix it
 - Solved along the way: the first deployment ran with debug mode on and a public secret key, found by checking
   from outside and fixed the same day; it is in the risk log
 - Next: the 10 deliberately modified contracts (§6.3), the threshold note, usability sessions before 10/7
