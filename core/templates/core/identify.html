@@ -1,24 +1,92 @@
 {% extends "base.html" %}
 
-{% block title %}Identify provisions · {{ agreement.vendor }}{% endblock %}
+{% block title %}Identify provisions · {{ agreement.vendor }}
+{# Tagging: highlight words in a clause and say which provision they show. The panel fills in the same
+   form as the one on the right and submits it, so the checks and the record are identical either way.
+   Without JavaScript the form still works by hand. #}
+<div id="tagger" class="tagger" hidden>
+  <p class="tagger-words"><span id="tagger-quote"></span></p>
+  <p id="tagger-where" class="tagger-where"></p>
+  <label for="tagger-provision">This is</label>
+  <select id="tagger-provision"></select>
+  <div class="tagger-buttons">
+    <button type="button" id="tagger-add">Add finding</button>
+    <button type="button" class="quiet" id="tagger-cancel">Cancel</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById("finding-form");
+  const provisionField = document.getElementById("id_provision");
+  const clauseField = document.getElementById("id_clause");
+  const textField = document.getElementById("id_source_text");
+  const panel = document.getElementById("tagger");
+  const choices = document.getElementById("tagger-provision");
+  if (!form || !provisionField || !clauseField || !textField || !panel) return;
+
+  choices.innerHTML = provisionField.innerHTML;  // the same provisions the form offers
+  let picked = null;
+
+  function close() {
+    panel.hidden = true;
+    picked = null;
+  }
+
+  document.addEventListener("mouseup", function (event) {
+    if (panel.contains(event.target)) return;
+    const selection = window.getSelection();
+    const words = selection ? selection.toString().replace(/^\s*Clause \d+\s*/, "").trim() : "";
+    if (!words || words.length < 3) return close();
+    const clause = selection.anchorNode && selection.anchorNode.parentElement
+      ? selection.anchorNode.parentElement.closest("li[data-clause]") : null;
+    const endClause = selection.focusNode && selection.focusNode.parentElement
+      ? selection.focusNode.parentElement.closest("li[data-clause]") : null;
+    if (!clause || clause !== endClause) return close();  // one clause at a time
+
+    picked = { clause: clause.dataset.clause, number: clause.dataset.num, words: words };
+    document.getElementById("tagger-quote").textContent = words.length > 220 ? words.slice(0, 220) + "…" : words;
+    document.getElementById("tagger-where").textContent = "Clause " + clause.dataset.num;
+    const box = selection.getRangeAt(0).getBoundingClientRect();
+    panel.hidden = false;
+    const top = window.scrollY + box.bottom + 8;
+    const left = Math.min(window.scrollX + box.left, window.scrollX + document.documentElement.clientWidth - panel.offsetWidth - 16);
+    panel.style.top = top + "px";
+    panel.style.left = Math.max(8, left) + "px";
+  });
+
+  document.getElementById("tagger-cancel").addEventListener("click", close);
+  document.addEventListener("keydown", function (event) { if (event.key === "Escape") close(); });
+
+  document.getElementById("tagger-add").addEventListener("click", function () {
+    if (!picked) return;
+    provisionField.value = choices.value;
+    clauseField.value = picked.clause;
+    textField.value = picked.words;
+    form.submit();
+  });
+})();
+</script>
+{% endblock %}
 
 {% block content %}
 <h1>Identify provisions: {{ agreement.vendor }}</h1>
-<p>Read the clauses. For each playbook provision you find, choose its clause and paste the exact words
-  that show it. Findings from the text rules are already listed; remove any that are wrong. When you are
+<p><strong>Highlight the words that show a provision</strong> and a box appears asking which provision it is.
+  The finding is saved with exactly the words you highlighted. The form on the right does the same thing by
+  hand. Findings from the text rules and the AI are already listed; remove any that are wrong. When you are
   done, finish identification to send the agreement to review.</p>
 
 <div class="two-columns">
   <section>
     <h2>Clauses ({{ clauses|length }})</h2>
     <ol class="clauses">
-      {% for clause in clauses %}<li data-num="{{ clause.position }}">{{ clause.text }}</li>{% endfor %}
+      {% for clause in clauses %}<li data-num="{{ clause.position }}" data-clause="{{ clause.pk }}">{{ clause.text }}</li>{% endfor %}
     </ol>
   </section>
 
   <section>
     <h2>Add a finding</h2>
-    <form method="post">
+    <form method="post" id="finding-form">
       {% csrf_token %}
       {{ form.as_p }}
       <button type="submit">Add finding</button>
@@ -43,4 +111,71 @@
     </form>
   </section>
 </div>
+
+{# Tagging: highlight words in a clause and say which provision they show. The panel fills in the same
+   form as the one on the right and submits it, so the checks and the record are identical either way.
+   Without JavaScript the form still works by hand. #}
+<div id="tagger" class="tagger" hidden>
+  <p class="tagger-words"><span id="tagger-quote"></span></p>
+  <p id="tagger-where" class="tagger-where"></p>
+  <label for="tagger-provision">This is</label>
+  <select id="tagger-provision"></select>
+  <div class="tagger-buttons">
+    <button type="button" id="tagger-add">Add finding</button>
+    <button type="button" class="quiet" id="tagger-cancel">Cancel</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById("finding-form");
+  const provisionField = document.getElementById("id_provision");
+  const clauseField = document.getElementById("id_clause");
+  const textField = document.getElementById("id_source_text");
+  const panel = document.getElementById("tagger");
+  const choices = document.getElementById("tagger-provision");
+  if (!form || !provisionField || !clauseField || !textField || !panel) return;
+
+  choices.innerHTML = provisionField.innerHTML;  // the same provisions the form offers
+  let picked = null;
+
+  function close() {
+    panel.hidden = true;
+    picked = null;
+  }
+
+  document.addEventListener("mouseup", function (event) {
+    if (panel.contains(event.target)) return;
+    const selection = window.getSelection();
+    const words = selection ? selection.toString().replace(/^\s*Clause \d+\s*/, "").trim() : "";
+    if (!words || words.length < 3) return close();
+    const clause = selection.anchorNode && selection.anchorNode.parentElement
+      ? selection.anchorNode.parentElement.closest("li[data-clause]") : null;
+    const endClause = selection.focusNode && selection.focusNode.parentElement
+      ? selection.focusNode.parentElement.closest("li[data-clause]") : null;
+    if (!clause || clause !== endClause) return close();  // one clause at a time
+
+    picked = { clause: clause.dataset.clause, number: clause.dataset.num, words: words };
+    document.getElementById("tagger-quote").textContent = words.length > 220 ? words.slice(0, 220) + "…" : words;
+    document.getElementById("tagger-where").textContent = "Clause " + clause.dataset.num;
+    const box = selection.getRangeAt(0).getBoundingClientRect();
+    panel.hidden = false;
+    const top = window.scrollY + box.bottom + 8;
+    const left = Math.min(window.scrollX + box.left, window.scrollX + document.documentElement.clientWidth - panel.offsetWidth - 16);
+    panel.style.top = top + "px";
+    panel.style.left = Math.max(8, left) + "px";
+  });
+
+  document.getElementById("tagger-cancel").addEventListener("click", close);
+  document.addEventListener("keydown", function (event) { if (event.key === "Escape") close(); });
+
+  document.getElementById("tagger-add").addEventListener("click", function () {
+    if (!picked) return;
+    provisionField.value = choices.value;
+    clauseField.value = picked.clause;
+    textField.value = picked.words;
+    form.submit();
+  });
+})();
+</script>
 {% endblock %}

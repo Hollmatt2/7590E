@@ -115,6 +115,20 @@ class IntakeTests(TestCase):
         self.assertEqual(self.client.get(reverse("agreement_detail", args=[agreement.pk])).status_code, 403)
         self.assertEqual(self.client.get(reverse("agreement_document", args=[agreement.pk])).status_code, 403)
 
+    def test_the_identification_page_offers_tagging(self):
+        """Clauses carry their id so highlighted words can be tagged without retyping them."""
+        self.submit_as("req")
+        agreement = Agreement.objects.get()
+        agreement.status = Agreement.Status.AWAITING_IDENTIFICATION
+        agreement.save(update_fields=["status"])
+        clause = Clause.objects.create(agreement=agreement, position=1, text="Supplier shall indemnify the Buyer.")
+        Provision.objects.create(name="Uncapped liability", cuad_category="Uncapped Liability")
+        self.client.login(username="rev", password="pw")
+        page = self.client.get(reverse("identify", args=[agreement.pk]))
+        self.assertContains(page, f'data-clause="{clause.pk}"')
+        self.assertContains(page, 'id="tagger"')
+        self.assertContains(page, "Highlight the words")
+
     def test_searching_an_agreement_shows_only_the_clauses_with_those_words(self):
         """A reviewer can search the contract's own text; the search is exact about words, not meaning."""
         self.submit_as("req")
