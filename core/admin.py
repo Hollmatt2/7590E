@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Agreement, Clause, Disposition, Flag, FlagDecision, Provision, User
+from .models import Agreement, AgreementNote, Clause, Configuration, Disposition, Flag, FlagDecision, Provision, User
 
 
 @admin.register(User)
@@ -38,4 +38,18 @@ class ProvisionAdmin(admin.ModelAdmin):
         return len([line for line in provision.keywords.splitlines() if line.strip()])
 
 
-admin.site.register([Clause, FlagDecision, Disposition])
+@admin.register(Configuration)
+class ConfigurationAdmin(admin.ModelAdmin):
+    """The settings an administrator changes: the confidence threshold and document retention."""
+
+    list_display = ("__str__", "ai_low_confidence", "document_retention_days", "updated_at")
+    fields = ("ai_low_confidence", "document_retention_days")
+
+    def has_add_permission(self, request):
+        return not Configuration.objects.exists()  # one row only
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+admin.site.register([Clause, FlagDecision, Disposition, AgreementNote])

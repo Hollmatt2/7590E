@@ -58,3 +58,14 @@ In the Deployments tab, pick an earlier deployment and choose Redeploy. Database
 
 Keys live only in Railway variables, never in the repository (brief, section 9). If one is ever committed,
 rotate it immediately and record the incident in `docs/risk-log.md`.
+
+## Document retention
+
+The retention period is an administrator setting (`/admin/` → Configuration → Document retention days), and it
+starts at 0, which keeps every document. Once Calder sets a period, run
+
+    python manage.py purge_documents --dry-run   # what would go
+    python manage.py purge_documents             # delete those files
+
+on the deployed service, or add it to a scheduled job. It deletes the uploaded file only: the agreement, its
+findings, decisions and outcome stay, and the agreement page records the date the file went.

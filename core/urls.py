@@ -18,4 +18,5 @@ urlpatterns = [
     path("agreements/<int:pk>/review/", views.review, name="review"),
     path("agreements/<int:pk>/review/outcome/", views.dispose, name="dispose"),
     path("agreements/<int:pk>/review/add/", views.add_missed_finding, name="add_missed_finding"),
+    path("agreements/<int:pk>/review/note/", views.add_note, name="add_note"),
 ]

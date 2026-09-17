@@ -7,12 +7,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Min, Q
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import AgreementForm, DecisionForm, DispositionForm, FindingForm
+from .forms import AgreementForm, DecisionForm, DispositionForm, FindingForm, NoteForm
 from .models import Agreement, Flag, Provision
 from .permissions import REVIEW_ROLES, STAFF_ROLES, can_review, can_view_agreement, role_required
 from .review import (
@@ -83,6 +83,8 @@ def agreement_detail(request, pk):
         "clauses": matches,
         "clause_total": len(clauses),
         "show_findings": show_findings,
+        # Reviewer notes are internal: a requester sees the outcome, not the deliberation (ambiguity log, question 6).
+        "notes": agreement.notes.select_related("written_by") if show_findings else [],
         "history": audit_history(agreement) if show_findings else [],
         "can_identify": (
             request.user.role in REVIEW_ROLES and agreement.status == Agreement.Status.AWAITING_IDENTIFICATION
@@ -97,6 +99,8 @@ def agreement_document(request, pk):
     agreement = get_object_or_404(Agreement, pk=pk)
     if not can_view_agreement(request.user, agreement):
         raise PermissionDenied
+    if not agreement.document:
+        raise Http404("The document was deleted under the retention rule; the review record remains.")
     filename = agreement.document.name.rsplit("/", 1)[-1]
     return FileResponse(agreement.document.open("rb"), filename=filename)
 
@@ -182,7 +186,7 @@ def review(request, pk):
     return render_review(request, agreement)
 
 
-def render_review(request, agreement, bound_forms=None, disposition_form=None, finding_form=None):
+def render_review(request, agreement, bound_forms=None, disposition_form=None, finding_form=None, note_form=None):
     """Show the review page. Forms that failed their checks are passed in, so their errors show."""
     bound_forms = bound_forms or {}
     flags = agreement.flags.select_related("provision", "clause", "created_by").prefetch_related(
@@ -197,6 +201,8 @@ def render_review(request, agreement, bound_forms=None, disposition_form=None, f
         "undecided": undecided_count(agreement),
         "disposition_form": disposition_form or DispositionForm(outcomes=allowed_outcomes(agreement)),
         "finding_form": finding_form or FindingForm(agreement=agreement),
+        "note_form": note_form or NoteForm(),
+        "notes": agreement.notes.select_related("written_by"),
     })
 
 
@@ -290,3 +296,19 @@ def reports(request):
         "median_turnaround": median(turnaround) if turnaround else None,
         "provisions": provisions,
     })
+
+
+@require_POST
+@role_required(*STAFF_ROLES)
+def add_note(request, pk):
+    """Add a note about the agreement as a whole. Notes are internal and are only ever added."""
+    agreement = get_object_or_404(Agreement, pk=pk)
+    form = NoteForm(request.POST)
+    if not form.is_valid():
+        return render_review(request, agreement, note_form=form)
+    note = form.save(commit=False)
+    note.agreement = agreement
+    note.written_by = request.user
+    note.save()
+    messages.success(request, "Note added.")
+    return redirect("review", pk=pk)

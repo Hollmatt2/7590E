@@ -9,7 +9,7 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Agreement, Clause, Flag, Provision, Severity, User
+from .models import Agreement, AgreementNote, Clause, Configuration, Flag, Provision, Severity, User
 from .reading import read_agreement, split_into_clauses
 
 # Tests save uploads in a throwaway folder, never in the real media/ folder.
@@ -349,3 +349,65 @@ class IdentificationTests(TestCase):
                 agreement=self.agreement, provision=self.provision, severity=Severity.LOW,
                 reason="test", source=Flag.Source.AI, confidence=1.5,
             )
+
+
+class AdministratorSettingsTests(TestCase):
+    """The threshold and the retention period are settings an administrator changes (brief, section 3)."""
+
+    def setUp(self):
+        self.requester = User.objects.create_user("req", password="pw", role=User.Role.REQUESTER)
+        self.reviewer = User.objects.create_user("rev", password="pw", role=User.Role.REVIEWER)
+        self.provision = Provision.objects.create(name="Cap on liability", cuad_category="Cap On Liability")
+        self.agreement = Agreement.objects.create(
+            vendor="Acme", agreement_type=Agreement.AgreementType.SERVICES, business_unit="Corporate",
+            needed_by=timezone.localdate(), document="agreements/acme.pdf", submitted_by=self.requester,
+            status=Agreement.Status.IN_REVIEW,
+        )
+        self.clause = Clause.objects.create(agreement=self.agreement, position=1, text="Liability is capped.")
+
+    def flag(self, confidence):
+        return Flag.objects.create(
+            agreement=self.agreement, provision=self.provision, clause=self.clause, severity=Severity.MEDIUM,
+            source_text="Liability is capped.", reason="Caps liability.", source=Flag.Source.AI, confidence=confidence,
+        )
+
+    def test_the_threshold_comes_from_the_administrator_setting(self):
+        flag = self.flag(0.92)
+        self.assertFalse(flag.is_low_confidence)  # the default threshold is 0.9
+        Configuration.objects.create(ai_low_confidence=0.95)
+        self.assertTrue(flag.is_low_confidence)
+
+    def test_a_reviewer_adds_a_note_and_a_requester_never_sees_it(self):
+        self.client.login(username="rev", password="pw")
+        response = self.client.post(reverse("add_note", args=[self.agreement.pk]),
+                                    {"text": "Called the vendor; a revised draft is coming."}, follow=True)
+        self.assertContains(response, "Called the vendor")
+        self.assertEqual(AgreementNote.objects.get().written_by, self.reviewer)
+
+        self.client.login(username="req", password="pw")
+        page = self.client.get(reverse("agreement_detail", args=[self.agreement.pk]))
+        self.assertNotContains(page, "Called the vendor")
+        self.assertEqual(self.client.post(reverse("add_note", args=[self.agreement.pk]), {"text": "mine"}).status_code, 403)
+
+    def test_documents_are_deleted_only_after_the_retention_period(self):
+        from django.core.management import call_command
+        from io import StringIO
+        Disposition = self.agreement.dispositions.model
+        disposition = Disposition.objects.create(
+            agreement=self.agreement, decided_by=self.reviewer, outcome=Disposition.Outcome.CLEARED,
+        )
+        Disposition.objects.filter(pk=disposition.pk).update(decided_at=timezone.now() - timedelta(days=400))
+        self.agreement.status = Agreement.Status.CLEARED
+        self.agreement.save(update_fields=["status"])
+
+        call_command("purge_documents", stdout=StringIO())  # retention is 0: keep everything
+        self.agreement.refresh_from_db()
+        self.assertTrue(self.agreement.document)
+
+        Configuration.objects.create(document_retention_days=365)
+        call_command("purge_documents", stdout=StringIO())
+        self.agreement.refresh_from_db()
+        self.assertFalse(self.agreement.document)
+        self.assertIsNotNone(self.agreement.document_removed_at)
+        self.client.login(username="rev", password="pw")
+        self.assertEqual(self.client.get(reverse("agreement_document", args=[self.agreement.pk])).status_code, 404)

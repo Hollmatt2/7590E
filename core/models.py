@@ -52,6 +52,30 @@ class Provision(models.Model):
         return self.name
 
 
+class Configuration(models.Model):
+    """The settings an administrator changes without a deployment (brief, section 3: "configure thresholds").
+
+    One row, read through core.config.current(). The environment variables set its starting values.
+    """
+
+    ai_low_confidence = models.FloatField(default=0.9)  # AI findings below this are marked and listed last
+    document_retention_days = models.PositiveIntegerField(default=0)  # 0 keeps documents until told otherwise
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Configuration"
+        verbose_name_plural = "Configuration"
+
+    def save(self, *args, **kwargs):
+        # There is only ever one row: saving a second one updates the first instead of failing.
+        self.pk = 1
+        kwargs.pop("force_insert", None)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "Configuration"
+
+
 class Agreement(models.Model):
     """A contract someone submitted for review."""
 
@@ -77,7 +101,9 @@ class Agreement(models.Model):
     agreement_type = models.CharField(max_length=20, choices=AgreementType)
     business_unit = models.CharField(max_length=100)
     needed_by = models.DateField()
-    document = models.FileField(upload_to="agreements/")
+    document = models.FileField(upload_to="agreements/", blank=True)
+    # Set when the file is deleted under the retention rule. The record of the review stays.
+    document_removed_at = models.DateTimeField(null=True, blank=True)
     extracted_text = models.TextField(blank=True)  # filled in after the document is read
     read_error = models.TextField(blank=True)  # why reading failed, in words a reviewer can act on
     status = models.CharField(max_length=20, choices=Status, default=Status.SUBMITTED)
@@ -156,8 +182,10 @@ class Flag(models.Model):
 
     @property
     def is_low_confidence(self):
-        """True for an AI finding below the AI_LOW_CONFIDENCE setting. Such findings are marked and listed last."""
-        return self.confidence is not None and self.confidence < settings.AI_LOW_CONFIDENCE
+        """True for an AI finding below the administrator's threshold. Such findings are marked and listed last."""
+        from .config import low_confidence_threshold  # imported here because config reads this module
+
+        return self.confidence is not None and self.confidence < low_confidence_threshold()
 
     def __str__(self):
         return f"{self.get_kind_display()}: {self.provision} in {self.agreement}"
@@ -201,3 +229,21 @@ class Disposition(models.Model):
 
     def __str__(self):
         return f"{self.agreement}: {self.get_outcome_display()}"
+
+
+class AgreementNote(models.Model):
+    """A reviewer's note about an agreement as a whole (brief, section 3: a Reviewer can "add notes").
+
+    Add-only, like decisions, and never shown to a Requester (ambiguity log question 6).
+    """
+
+    agreement = models.ForeignKey(Agreement, on_delete=models.CASCADE, related_name="notes")
+    written_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    text = models.TextField()
+    written_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["written_at"]
+
+    def __str__(self):
+        return f"Note by {self.written_by} on {self.agreement}"

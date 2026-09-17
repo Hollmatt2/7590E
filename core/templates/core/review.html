@@ -36,6 +36,22 @@
   <p>No findings. None of the playbook provisions was identified in this agreement.</p>
 {% endfor %}
 
+<h2>Notes</h2>
+<p>Notes are internal: a requester never sees them. Like decisions, they are only ever added.</p>
+{% for note in notes %}
+  <div class="finding">
+    <p><strong>{{ note.written_by.username }}</strong> · {{ note.written_at|date:"M j, Y, g:i a" }}</p>
+    <p>{{ note.text|linebreaksbr }}</p>
+  </div>
+{% empty %}
+  <p>No notes yet.</p>
+{% endfor %}
+<form method="post" action="{% url 'add_note' agreement.pk %}">
+  {% csrf_token %}
+  {{ note_form.as_p }}
+  <button type="submit">Add note</button>
+</form>
+
 <h2>Add a finding identification missed</h2>
 <p>Clause numbers match the numbered list on the <a href="{% url 'agreement_detail' agreement.pk %}">agreement page</a>.</p>
 <form method="post" action="{% url 'add_missed_finding' agreement.pk %}">

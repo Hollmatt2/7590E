@@ -11,7 +11,11 @@
   <tr><th>Business unit</th><td>{{ agreement.business_unit }}</td></tr>
   <tr><th>Needed by</th><td>{{ agreement.needed_by|date:"M j, Y" }}</td></tr>
   <tr><th>Submitted by</th><td>{{ agreement.submitted_by.username }} on {{ agreement.submitted_at|date:"M j, Y, g:i a" }}</td></tr>
-  <tr><th>Document</th><td><a href="{% url 'agreement_document' agreement.pk %}">Open the file</a></td></tr>
+  <tr><th>Document</th><td>
+    {% if agreement.document %}<a href="{% url 'agreement_document' agreement.pk %}">Open the file</a>
+    {% else %}Deleted on {{ agreement.document_removed_at|date:"M j, Y" }} under the retention rule. The review record remains.
+    {% endif %}
+  </td></tr>
 </table>
 
 {% if agreement.read_error %}
@@ -57,6 +61,17 @@
     {% endif %}
   {% endwith %}
 
+  {% if notes %}
+    <h2>Notes ({{ notes|length }})</h2>
+    <table>
+      <thead><tr><th>When</th><th>Who</th><th>Note</th></tr></thead>
+      <tbody>
+        {% for note in notes %}
+          <tr><td>{{ note.written_at|date:"M j, Y, g:i a" }}</td><td>{{ note.written_by.username }}</td><td>{{ note.text }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
   {% if history %}
     <h2>History</h2>
     <table>

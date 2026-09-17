@@ -46,19 +46,30 @@ Suppress, warn, or a separate queue? Ties to the threshold note.
 ## 5. Document retention
 Is the uploaded agreement kept after disposition, and for how long? What does the record look like once it is gone?
 - What the app does now: keeps every file indefinitely.
-- Options considered:
-- Decision:
-- Reasoning:
-- Consequence for the design:
+- Options considered: keep the document forever; delete it a fixed time after the outcome; delete it as soon
+  as the review finishes.
+- Decision: the app can delete documents on a schedule, and the period is an administrator setting that
+  starts at 0, meaning keep (2026-09-17). Calder has not stated a policy, so the system does not invent one.
+- Reasoning: deleting a vendor agreement by default would destroy the evidence behind a recorded decision,
+  which is worse for Calder than storing a public contract too long. But a real retention policy is normal in
+  procurement, so the mechanism has to exist before Legal asks for it, not after.
+- Consequence for the design: `Configuration.document_retention_days` on the administrator screen, and
+  `python manage.py purge_documents` deletes only the file, never the record. The agreement page then says
+  the document was deleted on a date and that the record remains. Findings quote their source text, so a
+  review stays readable without the file.
 
 ## 6. Note visibility
 Can a Requester see reviewer deliberation, or only outcomes?
 - What the app does now: requesters see the status, the outcome and any conditions, but not the findings,
-  decisions or reasons.
-- Options considered:
-- Decision:
-- Reasoning:
-- Consequence for the design:
+- Options considered: show requesters everything, including reviewer notes and findings; show them the
+  outcome and any conditions only.
+- Decision: requesters see status, outcome and conditions. Findings and reviewer notes are internal
+  (2026-09-17).
+- Reasoning: the brief's role table gives a Requester the outcome and any conditions, and a review that a
+  requester reads over the shoulder stops being candid. What a requester needs is what to do next, which the
+  conditions say.
+- Consequence for the design: `show_findings` in the agreement view is true only for staff roles; the notes
+  and history sections follow the same flag, and the review pages are behind a role check.
 
 ## 7. Dismissal semantics
 Is a dismissal a judgment about this contract alone, or a signal the system carries forward?

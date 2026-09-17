@@ -5,7 +5,7 @@ from django import forms
 from django.conf import settings
 from django.utils import timezone
 
-from .models import Agreement, Disposition, Flag, FlagDecision, Provision
+from .models import Agreement, AgreementNote, Disposition, Flag, FlagDecision, Provision
 
 # PDFs, plus plain text: the brief allows switching to the corpus's plain-text files (section 9).
 ALLOWED_EXTENSIONS = {".pdf", ".txt"}
@@ -112,3 +112,13 @@ class DispositionForm(forms.Form):
         if cleaned.get("outcome") == Disposition.Outcome.CLEARED_WITH_CONDITIONS and not conditions:
             self.add_error("conditions", "Write the conditions the requester must meet.")
         return cleaned
+
+
+class NoteForm(forms.ModelForm):
+    """A reviewer's note about the agreement. Notes are added, never edited."""
+
+    class Meta:
+        model = AgreementNote
+        fields = ["text"]
+        labels = {"text": "Note"}
+        widgets = {"text": forms.Textarea(attrs={"rows": 3})}
