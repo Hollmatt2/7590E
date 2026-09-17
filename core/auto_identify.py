@@ -42,7 +42,8 @@ def identify_automatically(agreement):
     if agreement.flags.exclude(source=Flag.Source.MANUAL).exists():
         return "skipped"  # already done
 
-    provisions = list(Provision.objects.all())
+    # The playbook is scoped per agreement type (ambiguity log, question 3).
+    provisions = [p for p in Provision.objects.all() if p.applies_to(agreement.agreement_type)]
     clauses = list(agreement.clauses.all())
     flags, covered, note = [], set(), "done"
 

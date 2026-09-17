@@ -28,6 +28,8 @@ Written honestly, as the brief asks (section 11). Update it whenever something c
 
 ## Review and record
 - A finished review cannot be reopened.
+- A revised contract submitted again is a separate agreement with no link to the original, so a reviewer
+  cannot see what changed since the last draft (ambiguity log, question 14).
 - Reviewer notes cannot be edited or deleted, by design; a correction is another note.
 - Nothing runs `purge_documents` on a schedule yet: an administrator runs it, or it is added to the
   deployment once Calder sets a retention period.

@@ -56,3 +56,16 @@ a finding the rules or the AI already made.
 Measure before trusting: `python manage.py evaluate_identification --method rules` scores the text pass,
 keywords included. The uncapped liability attempt on 2026-09-17 found none of the labeled clauses and every
 flag it raised was wrong (`docs/playbook-selection.md`), which is why that category has no keywords.
+
+## Which agreement types a provision applies to (added 2026-09-17)
+
+Each provision carries a list of agreement types. Empty means every type. In the admin screen it is the
+Agreement types box (comma-separated codes); in `seed/playbook.csv` it is the `agreement_types` column,
+semicolon-separated. The codes are `software`, `services`, `licensing`, `logistics`, `dpa`, `other`.
+
+Today: insurance applies to `services;licensing;logistics`, audit rights to `software;dpa;logistics`, and the
+other eight to every type. A provision that does not apply is not looked for automatically and is not offered
+on the manual identification screen for that agreement.
+
+Changing this changes what gets flagged, not how well the methods work: the evaluation scores categories
+against CUAD, which has no Calder agreement types.

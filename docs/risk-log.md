@@ -1,20 +1,20 @@
 # Risk log
 
 Graded (syllabus). One row per risk. "Seen so far" records what has actually happened. Likelihood, impact,
-response and status are Matt's to set and keep current. The brief requires a committed API key to be
+response and status were drafted 2026-09-17 and are Matt's to confirm and keep current. The brief requires a committed API key to be
 rotated and recorded here (section 9).
 
 | # | Risk | Seen so far | Likelihood | Impact | Response | Status |
 |---|---|---|---|---|---|---|
-| 1 | PDF text extraction fails on some contracts (brief §9 warning) | 30 of 30 CUAD PDFs read; median 98% of words match CUAD's text (2026-09-14) | | | | |
-| 2 | Clause splitting misses section headings | 5% of clauses cut by length, mostly in 4 long contracts | | | | |
-| 3 | Wrong flags make reviewers stop trusting the system (brief §1) | 22–73% of text-rule flags wrong, by category | | | | |
-| 4 | No AI provider or key chosen yet | none on the development laptop as of 2026-09-14 | | | | |
-| 5 | The AI service is down or slow | not built yet; manual identification is the fallback | | | | |
-| 6 | An API key or secret is committed to the repository | none; the secret key was moved to an environment variable before the first commit | | | | |
-| 7 | One person does all building, documentation and presentations | solo team since 8/27 | | | | |
-| 8 | AI-written code that I cannot explain (brief §12.2, §12.3) | most modules are AI-generated (see the provenance log) | | | | |
-| 9 | CUAD scores reflect what models memorized (brief §6.3) | modified-agreement test not started | | | | |
-| 10 | A deployment setting mistake exposes the site | Deployed 2026-09-15. The first check from outside found debug mode on and the development secret key in use, because the Railway variables had not been set: logins could have been forged, and data was stored in a file inside the container that every redeploy wipes. Fixed the same day through the Railway CLI (new secret key, debug off, a private demo password, a Postgres database) and checked again from outside: debug pages gone, login cookie marked secure. An upload volume was added the same day. | | | | |
-| 11 | Source control started late (brief §9 requires Week 2) | repository created 2026-09-15 (github.com/Hollmatt2/7590E); the work of 9/12–9/14 went in as its first commit that day | | | | |
-| 12 | Usability sessions not done before 10/7 | not scheduled | | | | |
+| 1 | PDF text extraction fails on some contracts (brief §9 warning) | 30 of 30 CUAD PDFs read; median 98% of words match CUAD's text (2026-09-14) | Medium | Medium | Measured on 30 contracts before building on it; plain text is accepted as a fallback; a failure is reported with a reason a reviewer can act on. | Closed, watched |
+| 2 | Clause splitting misses section headings | 5% of clauses cut by length, mostly in 4 long contracts | Medium | Low | 5% of clauses are cut by length rather than at a heading; those clauses are cut at sentence ends so they stay readable. Splitter fixed for every pattern found in the corpus. | Open, tolerable |
+| 3 | Wrong flags make reviewers stop trusting the system (brief §1) | 22–73% of text-rule flags wrong, by category | High | High | Per-category numbers published rather than one accuracy figure; the weakest categories moved to the method that measured better; findings below 0.9 confidence marked and listed last; every dismissal recorded with a reason. | Open, managed |
+| 4 | No AI provider or key chosen yet | none on the development laptop as of 2026-09-14 | Low | High | Key set in environment variables on the laptop and on Railway, 2026-09-17. The app still runs with the AI off. | Closed |
+| 5 | The AI service is down or slow | not built yet; manual identification is the fallback | Medium | Medium | Every API failure becomes one error the pipeline expects: the reason is logged and the agreement waits for a person on the manual screen. The manual path is kept permanently. | Closed, mitigated |
+| 6 | An API key or secret is committed to the repository | none; the secret key was moved to an environment variable before the first commit | Low | High | Keys live only in environment variables and a private file; .gitignore covers .env. If one is ever committed: rotate it the same hour, and record the incident in this log (brief, section 9). | Open, controlled |
+| 7 | One person does all building, documentation and presentations | solo team since 8/27 | High | High | Scope held to the required baseline; stretch work deferred in writing; documentation written as the code is written rather than in December. | Open, accepted |
+| 8 | AI-written code that I cannot explain (brief §12.2, §12.3) | most modules are AI-generated (see the provenance log) | Medium | High | Provenance log kept per module; two study guides written for the code; every file walked before the technical presentation. | Open, managed |
+| 9 | CUAD scores reflect what models memorized (brief §6.3) | modified-agreement test not started | Medium | High | Section 6.3's modified agreements are the test. Until they are run, CUAD numbers are treated as an upper bound, and the threshold note says so. | Open, due before 12/8 |
+| 10 | A deployment setting mistake exposes the site | Deployed 2026-09-15. The first check from outside found debug mode on and the development secret key in use, because the Railway variables had not been set: logins could have been forged, and data was stored in a file inside the container that every redeploy wipes. Fixed the same day through the Railway CLI (new secret key, debug off, a private demo password, a Postgres database) and checked again from outside: debug pages gone, login cookie marked secure. An upload volume was added the same day. | Low | High | Fixed the same day (2026-09-15). The app now refuses to start with the development secret key when debug is off, and every deploy is checked from outside. | Closed |
+| 11 | Source control started late (brief §9 requires Week 2) | repository created 2026-09-15 (github.com/Hollmatt2/7590E); the work of 9/12–9/14 went in as its first commit that day | Low | Medium | Repository live since 2026-09-15 with every change committed since. Nothing to undo; recorded here because the brief fixes source control from Week 2. | Closed |
+| 12 | Usability sessions not done before 10/7 | not scheduled | High | Medium | Two sessions to be scheduled by 2026-09-26, so there is time to act on what they show before the 10/7 presentation. | Open, scheduled next |

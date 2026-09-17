@@ -119,6 +119,17 @@ class AutomaticIdentificationTests(TestCase):
         )
 
     @patch("core.ai_identify.credentials_configured", return_value=False)
+    def test_a_provision_is_skipped_for_an_agreement_type_it_does_not_apply_to(self, _):
+        """The playbook is scoped per agreement type (ambiguity log, question 3)."""
+        self.law.agreement_types = "software,dpa"  # the agreement under test is professional services
+        self.law.save(update_fields=["agreement_types"])
+        identify_automatically(self.agreement)
+        self.assertFalse(Flag.objects.filter(provision=self.law).exists())
+        # It still applies to the types it lists.
+        self.assertTrue(self.law.applies_to(Agreement.AgreementType.SOFTWARE))
+        self.assertFalse(self.law.applies_to(Agreement.AgreementType.SERVICES))
+
+    @patch("core.ai_identify.credentials_configured", return_value=False)
     def test_playbook_keywords_are_found_whatever_the_method(self, _):
         """An administrator's keywords run even for a provision the AI usually handles."""
         self.cap.keywords = "shall not be limited\nunlimited liability"

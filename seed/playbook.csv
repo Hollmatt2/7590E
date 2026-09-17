@@ -1,11 +1,11 @@
-name,cuad_category,default_severity,method,keywords,definition
-Uncapped liability,Uncapped Liability,high,ai,,Is a party’s liability uncapped upon the breach of its obligation in the contract? This also includes uncap liability for a particular type of breach such as IP infringement or breach of confidentiality obligation.
-Cap on liability,Cap On Liability,high,ai,,Does the contract include a cap on liability upon the breach of a party’s obligation? This includes time limitation for the counterparty to bring claims or maximum amount for recovery.
-Notice period to stop renewal,Notice Period To Terminate Renewal,high,ai,,What is the notice period required to terminate renewal?
-Auto-renewal,Renewal Term,high,ai,,What is the renewal term after the initial term expires? This includes automatic extensions and unilateral extensions with prior notice.
-Termination for convenience,Termination For Convenience,medium,ai,,Can a party terminate this  contract without cause (solely by giving a notice and allowing a waiting  period to expire)?
-Change of control,Change Of Control,medium,ai,,"Does one party have the right to terminate or is consent or notice required of the counterparty if such party undergoes a change of control, such as a merger, stock sale, transfer of all or substantially all of its assets or business, or assignment by operation of law?"
-Assignment restriction,Anti-Assignment,medium,ai,,Is consent or notice required of a party if the contract is assigned to a third party?
-Insurance requirement,Insurance,medium,rules,,Is there a requirement for insurance that must be maintained by one party for the benefit of the counterparty?
-Governing law,Governing Law,low,ai,,Which state/country's law governs the interpretation of the contract?
-Audit rights,Audit Rights,low,rules,,"Does a party have the right to  audit the books, records, or physical locations of the counterparty to ensure compliance with the contract?"
+name,cuad_category,default_severity,method,agreement_types,keywords,definition
+Uncapped liability,Uncapped Liability,high,ai,,,Is a party’s liability uncapped upon the breach of its obligation in the contract? This also includes uncap liability for a particular type of breach such as IP infringement or breach of confidentiality obligation.
+Cap on liability,Cap On Liability,high,ai,,,Does the contract include a cap on liability upon the breach of a party’s obligation? This includes time limitation for the counterparty to bring claims or maximum amount for recovery.
+Notice period to stop renewal,Notice Period To Terminate Renewal,high,ai,,,What is the notice period required to terminate renewal?
+Auto-renewal,Renewal Term,high,ai,,,What is the renewal term after the initial term expires? This includes automatic extensions and unilateral extensions with prior notice.
+Termination for convenience,Termination For Convenience,medium,ai,,,Can a party terminate this  contract without cause (solely by giving a notice and allowing a waiting  period to expire)?
+Change of control,Change Of Control,medium,ai,,,"Does one party have the right to terminate or is consent or notice required of the counterparty if such party undergoes a change of control, such as a merger, stock sale, transfer of all or substantially all of its assets or business, or assignment by operation of law?"
+Assignment restriction,Anti-Assignment,medium,ai,,,Is consent or notice required of a party if the contract is assigned to a third party?
+Insurance requirement,Insurance,medium,rules,services;licensing;logistics,,Is there a requirement for insurance that must be maintained by one party for the benefit of the counterparty?
+Governing law,Governing Law,low,ai,,,Which state/country's law governs the interpretation of the contract?
+Audit rights,Audit Rights,low,rules,software;dpa;logistics,,"Does a party have the right to  audit the books, records, or physical locations of the counterparty to ensure compliance with the contract?"

@@ -39,6 +39,16 @@ false-flag rate: of the flags the method raised, how many matched no labeled cla
 Both are in the stretch backlog rather than deleted work: adding either back is one row in
 `seed/playbook.csv`.
 
+## Which agreement types each provision applies to
+
+Ambiguity log question 3 was decided on 2026-09-17: the playbook is scoped per agreement type. Eight of the
+ten provisions apply to every type. Two do not:
+
+- **Insurance requirement**: professional services, licensing, logistics. Physical and service work carries
+  insurance obligations; flagging insurance on a SaaS subscription trains reviewers to ignore flags.
+- **Audit rights**: software subscriptions, data processing addenda, logistics. These are the agreements where
+  usage, data handling and delivery are the things Calder would audit.
+
 ## Severity
 
 Severity orders a reviewer's attention; it is not a legal judgment.

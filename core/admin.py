@@ -28,9 +28,9 @@ class FlagAdmin(admin.ModelAdmin):
 class ProvisionAdmin(admin.ModelAdmin):
     """The playbook. Severity, method and keywords are the settings an administrator changes."""
 
-    list_display = ("name", "cuad_category", "default_severity", "method", "keyword_count")
+    list_display = ("name", "cuad_category", "default_severity", "method", "agreement_types", "keyword_count")
     list_filter = ("default_severity", "method")
-    fields = ("name", "cuad_category", "default_severity", "method", "keywords", "definition",
+    fields = ("name", "cuad_category", "default_severity", "method", "agreement_types", "keywords", "definition",
               "standard_position", "required")
 
     @admin.display(description="Keywords")

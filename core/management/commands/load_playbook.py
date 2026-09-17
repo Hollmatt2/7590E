@@ -42,10 +42,12 @@ class Command(BaseCommand):
             definition = (row.get("definition") or "").strip() or descriptions.get(category, "")
             # Keywords are semicolon-separated in the CSV and stored one per line.
             keywords = "\n".join(k.strip() for k in (row.get("keywords") or "").split(";") if k.strip())
+            # Agreement types are semicolon-separated in the CSV; empty means every type.
+            types = ",".join(t.strip() for t in (row.get("agreement_types") or "").split(";") if t.strip())
             _, created = Provision.objects.update_or_create(
                 name=name,
                 defaults={"cuad_category": category, "default_severity": severity, "method": method,
-                          "definition": definition, "keywords": keywords},
+                          "definition": definition, "keywords": keywords, "agreement_types": types},
             )
             self.stdout.write(f"{'Added' if created else 'Updated'} {name} ({method})")
 

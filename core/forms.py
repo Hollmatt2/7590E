@@ -66,7 +66,9 @@ class FindingForm(forms.ModelForm):
 
     def __init__(self, *args, agreement, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["provision"].queryset = Provision.objects.order_by("name")
+        # Only the provisions the playbook applies to this agreement's type (ambiguity log, question 3).
+        applicable = [p.pk for p in Provision.objects.all() if p.applies_to(agreement.agreement_type)]
+        self.fields["provision"].queryset = Provision.objects.filter(pk__in=applicable).order_by("name")
         self.fields["clause"].queryset = agreement.clauses.all()  # only this agreement's clauses
         self.fields["clause"].required = True
         self.fields["clause"].label_from_instance = lambda clause: f"Clause {clause.position}"

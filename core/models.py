@@ -38,6 +38,10 @@ class Provision(models.Model):
     # How the system looks for it automatically: the brief's rules-versus-model split (section 9).
     method = models.CharField(max_length=10, choices=Method, default=Method.AI)
 
+    # Which agreement types this provision applies to, as a comma-separated list of Agreement.AgreementType
+    # codes. Empty means every type. This is the per-agreement-type playbook (ambiguity log, question 3).
+    agreement_types = models.CharField(max_length=200, blank=True)
+
     # Words an administrator wants looked for as well, one per line. They run whatever the method is,
     # so a category the AI is weak at (uncapped liability) still gets a text pass. A word matches the
     # start of a longer word too, so "indemnif" finds "indemnification".
@@ -47,6 +51,15 @@ class Provision(models.Model):
     # Kept so that work has a place to go later. Nothing in the required workflow uses these two fields.
     standard_position = models.TextField(blank=True)  # the version Calder accepts
     required = models.BooleanField(default=False)  # if a contract lacks it, raise a "gap" flag
+
+    def types(self):
+        """The agreement type codes this provision applies to, or an empty list meaning all of them."""
+        return [code.strip() for code in self.agreement_types.split(",") if code.strip()]
+
+    def applies_to(self, agreement_type):
+        """True if this provision is looked for in agreements of that type."""
+        codes = self.types()
+        return not codes or agreement_type in codes
 
     def __str__(self):
         return self.name
