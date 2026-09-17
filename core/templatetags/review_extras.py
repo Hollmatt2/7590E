@@ -22,3 +22,23 @@ def highlight(text, words):
         return text
     start, end = match.span()
     return mark_safe(f"{escape(text[:start])}<mark>{escape(text[start:end])}</mark>{escape(text[end:])}")
+
+
+@register.filter
+def highlight_all(text, words):
+    """Show `text` with every occurrence of `words` marked, ignoring capitals and spacing.
+
+    Used by the clause search. Everything is escaped first, so contract text cannot inject markup.
+    """
+    pieces = words.split()
+    if not text or not pieces:
+        return text
+    pattern = re.compile(r"\s+".join(re.escape(piece) for piece in pieces), re.IGNORECASE)
+    out, last = [], 0
+    for match in pattern.finditer(text):
+        start, end = match.span()
+        out.append(escape(text[last:start]))
+        out.append(f"<mark>{escape(text[start:end])}</mark>")
+        last = end
+    out.append(escape(text[last:]))
+    return mark_safe("".join(out))

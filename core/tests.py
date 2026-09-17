@@ -115,6 +115,23 @@ class IntakeTests(TestCase):
         self.assertEqual(self.client.get(reverse("agreement_detail", args=[agreement.pk])).status_code, 403)
         self.assertEqual(self.client.get(reverse("agreement_document", args=[agreement.pk])).status_code, 403)
 
+    def test_searching_an_agreement_shows_only_the_clauses_with_those_words(self):
+        """A reviewer can search the contract's own text; the search is exact about words, not meaning."""
+        self.submit_as("req")
+        agreement = Agreement.objects.get()
+        Clause.objects.create(agreement=agreement, position=1, text="Supplier shall indemnify the Buyer.")
+        Clause.objects.create(agreement=agreement, position=2, text="Governed by the laws of Georgia.")
+        self.client.login(username="rev", password="pw")
+        url = reverse("agreement_detail", args=[agreement.pk])
+
+        response = self.client.get(url, {"q": "INDEMNIFY"})  # capitals do not matter
+        self.assertContains(response, "1 of 2 clauses contain")
+        self.assertContains(response, "<mark>indemnify</mark>", html=False)
+        self.assertNotContains(response, "laws of Georgia")
+
+        empty = self.client.get(url, {"q": "arbitration"})
+        self.assertContains(empty, "0 of 2 clauses contain")
+
     def test_reviewers_can_open_any_agreement(self):
         self.submit_as("req")
         agreement = Agreement.objects.get()

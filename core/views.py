@@ -1,6 +1,8 @@
 """Views: each function receives a web request and returns the page to show."""
 from statistics import median
 
+import re
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -66,8 +68,20 @@ def agreement_detail(request, pk):
         raise PermissionDenied
     # Requesters see the status and the outcome, not the findings. This is a default; see the ambiguity log.
     show_findings = request.user.role in STAFF_ROLES
+    # Searching the clauses: exact words, any spacing, capitals ignored. A reviewer uses it to check a
+    # provision the automatic methods are weak at, and to answer "is that word anywhere in here?".
+    search = request.GET.get("q", "").strip()
+    clauses = list(agreement.clauses.all())
+    if search:
+        pattern = re.compile(r"\s+".join(re.escape(piece) for piece in search.split()), re.IGNORECASE)
+        matches = [clause for clause in clauses if pattern.search(clause.text)]
+    else:
+        matches = clauses
     return render(request, "core/agreement_detail.html", {
         "agreement": agreement,
+        "search": search,
+        "clauses": matches,
+        "clause_total": len(clauses),
         "show_findings": show_findings,
         "history": audit_history(agreement) if show_findings else [],
         "can_identify": (

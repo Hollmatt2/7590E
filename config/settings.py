@@ -158,7 +158,9 @@ AUTO_IDENTIFY = [method for method in os.environ.get('AUTO_IDENTIFY', 'rules,ai'
 AI_MODEL = os.environ.get('AI_MODEL', 'claude-haiku-4-5')
 # AI findings below this confidence are marked "low confidence" and listed last on the review page.
 # A person still decides on them. (Ambiguity log question 4; the threshold note.)
-AI_LOW_CONFIDENCE = float(os.environ.get('AI_LOW_CONFIDENCE', '0.5'))
+# 0.9 was chosen on 2026-09-17 from the check-set run: below 0.9, three of four flags were wrong;
+# at 0.9 and above, one in eleven.
+AI_LOW_CONFIDENCE = float(os.environ.get('AI_LOW_CONFIDENCE', '0.9'))
 
 
 # Logging in and out

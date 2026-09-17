@@ -12,7 +12,7 @@
   <section>
     <h2>Clauses ({{ clauses|length }})</h2>
     <ol class="clauses">
-      {% for clause in clauses %}<li>{{ clause.text }}</li>{% endfor %}
+      {% for clause in clauses %}<li data-num="{{ clause.position }}">{{ clause.text }}</li>{% endfor %}
     </ol>
   </section>
 
