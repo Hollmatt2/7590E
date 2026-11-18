@@ -1,4 +1,4 @@
-# Final practice presentation: outline (Wed 11/18, 15 minutes)
+# Final practice presentation: outline (Wed 11/18, starts 6:00 pm per the 11/17 notice, 15 minutes)
 
 A run-through of the final video. Srinivasan's feedback after 9/17 was that you needed to make more decisions,
 so the middle of the talk is your decisions, each with the reason and the evidence. He may also open any file
