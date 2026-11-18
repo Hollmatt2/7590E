@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calder Agreement Review: final practice</title>
+<!-- Slides for the 11/18 final practice. Open in Chrome, press F to go full screen, arrow keys to move.
+     Every number comes from a file in docs/ named on the slide. -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;500&family=Merriweather+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --red:#BA0C2F; --black:#000; --white:#fff; --grey:#5c5c5c; --line:#d6d6d6; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; background:var(--white); color:var(--black); font-family:"Merriweather Sans", sans-serif; }
+  .slide { display:none; height:100vh; padding:6vh 7vw; flex-direction:column; }
+  .slide.on { display:flex; }
+  h1, h2 { font-family:Oswald, sans-serif; font-weight:500; text-transform:uppercase; letter-spacing:.02em; }
+  h1 { font-size:6vh; line-height:1.1; }
+  h2 { font-size:4.6vh; border-bottom:.5vh solid var(--red); padding-bottom:1.2vh; margin-bottom:3.5vh; align-self:flex-start; }
+  p, li, td, th { font-size:2.6vh; line-height:1.5; }
+  ul { list-style:none; }
+  li { padding:.8vh 0 .8vh 2.2vw; position:relative; }
+  li::before { content:""; position:absolute; left:0; top:2vh; width:.9vw; height:.35vh; background:var(--black); }
+  .big { font-family:Oswald, sans-serif; font-size:9vh; font-weight:500; line-height:1; }
+  .red { color:var(--red); }
+  .muted { color:var(--grey); }
+  .src { margin-top:auto; font-size:1.8vh; color:var(--grey); }
+  .stats { display:flex; gap:4vw; margin:2vh 0 4vh; }
+  .stats div p { font-size:2.2vh; color:var(--grey); max-width:22vw; }
+  table { border-collapse:collapse; width:100%; }
+  th { text-align:left; font-family:Oswald, sans-serif; font-weight:500; text-transform:uppercase; font-size:2.2vh; border-bottom:2px solid var(--black); padding:1vh 1vw 1vh 0; }
+  td { border-bottom:1px solid var(--line); padding:1.1vh 1vw 1.1vh 0; vertical-align:top; font-size:2.2vh; }
+  td:first-child { font-weight:700; width:22%; }
+  .flow { display:flex; flex-wrap:wrap; gap:1vh 1vw; margin:1vh 0 4vh; }
+  .flow span { border:2px solid var(--black); padding:1vh 1.2vw; font-size:2.3vh; }
+  .flow span.ai { border-color:var(--red); }
+  .quote { font-size:3.2vh; border-left:.6vh solid var(--red); padding-left:2vw; margin-top:3vh; max-width:70vw; }
+  .counter { position:fixed; right:2vw; bottom:2vh; font-size:1.6vh; color:var(--grey); }
+  @media (max-width:700px) { .slide { padding:5vh 16px; } .stats { flex-direction:column; } .stats div p { max-width:none; } }
+</style>
+</head>
+<body>
+
+<section class="slide on">
+  <p class="muted">MIST 7590E AI Technology Capstone · Final practice · 18 November 2026</p>
+  <h1 style="margin:6vh 0 3vh">Vendor Agreement<br>Review Assistant</h1>
+  <p>For Calder Industrial Supply (fictional client)</p>
+  <p>Matt Holliday, solo team</p>
+  <p class="src">Live: calder.100-59-211-221.nip.io · Code: github.com/Hollmatt2/7590E</p>
+</section>
+
+<section class="slide">
+  <h2>The problem</h2>
+  <div class="stats">
+    <div><div class="big">200+</div><p>vendor agreements signed each year</p></div>
+    <div><div class="big">~40</div><p>of them reach Legal</p></div>
+    <div><div class="big red">3</div><p>uncapped indemnification clauses signed last spring</p></div>
+    <div><div class="big red">11</div><p>days late on a missed auto-renewal</p></div>
+  </div>
+  <p>What Calder asked for: a first pass that says which agreements need an attorney, and why.</p>
+  <p class="quote">If it misses something real, people stop trusting it.</p>
+  <p class="src">Source: project brief</p>
+</section>
+
+<section class="slide">
+  <h2>What it does</h2>
+  <div class="flow">
+    <span>Requester submits</span><span>Read and split into clauses</span><span class="ai">Text rules + AI find provisions</span>
+    <span>Reviewer accepts, dismisses or escalates</span><span>Approver gives the outcome</span><span>History record</span><span>Reports</span>
+  </div>
+  <ul>
+    <li>Every finding shows the exact words, highlighted in the clause</li>
+    <li>Reading and the AI run in a separate background program, so submitting never waits</li>
+    <li>The system never decides. It points at clauses; a person makes and signs every call.</li>
+  </ul>
+  <p class="src">Live demo next</p>
+</section>
+
+<section class="slide">
+  <h2>My decisions</h2>
+  <table>
+    <tr><th>Decision</th><th>Chose</th><th>Rejected</th><th>Why</th></tr>
+    <tr><td>1. Advise, don't block</td><td>Visible status; reports show who went ahead without review</td><td>Blocking signatures</td><td>Software can't stop a manager signing a PDF from email</td></tr>
+    <tr><td>2. Ten provisions</td><td>Ten, four of them high severity</td><td>Twelve (dropped exclusivity, warranty duration)</td><td>Each had to match a Calder problem and have enough examples to measure</td></tr>
+    <tr><td>3. Rule or AI, by measurement</td><td>AI for 8, text rules for insurance and audit rights</td><td>One method for everything</td><td>Both ran on the same 40 contracts; governing law: AI 90% found, 5% wrong; rule 60% wrong</td></tr>
+    <tr><td>4. Show everything</td><td>Below 0.9 marked "check carefully", listed last</td><td>Hiding low-confidence findings</td><td>Below 0.9, three flags in four are wrong; above it, one in eleven</td></tr>
+    <tr><td>5. Works with AI off</td><td>Manual tagging path</td><td>AI-only pipeline</td><td>Every step still works if the AI is down or switched off</td></tr>
+  </table>
+  <p class="src">Sources: ambiguity-log.md, playbook-selection.md, evaluation-ai-2026-09-17.md, threshold-note.md</p>
+</section>
+
+<section class="slide">
+  <h2>How well it works</h2>
+  <table>
+    <tr><th>Rating</th><th>Provisions</th></tr>
+    <tr><td>Reliable</td><td>Governing law (90% found), auto-renewal, notice period (88% found). The notice period is the clause behind the missed renewal.</td></tr>
+    <tr><td>Useful with checking</td><td>Assignment, change of control, termination for convenience, cap on liability, insurance, audit rights</td></tr>
+    <tr><td class="red">Not reliable</td><td>Uncapped liability: 30% found, 71% of flags wrong. Kept in and marked, because it is Calder's first problem. Until it improves, Legal reads every liability section.</td></tr>
+  </table>
+  <p style="margin-top:3vh">Modified-agreement test: 10 Bonterms / Common Paper agreements changed on purpose. A reversed assignment clause was still flagged, but the system could not tell it had been reversed. That is why every flag shows the exact words.</p>
+  <p class="src">Sources: verification.md, evaluation-ai-2026-09-17.md</p>
+</section>
+
+<section class="slide">
+  <h2>What's left, and next</h2>
+  <ul>
+    <li><b>Usability sessions:</b> not run yet. Two or three with people outside the project before the final video.</li>
+    <li><b>Scanned PDFs:</b> marked "Could not read the document" and queued for a person. No text recognition (OCR) yet.</li>
+    <li><b>Uncapped liability:</b> the biggest gap that matters to Calder.</li>
+    <li><b>Hosting:</b> moved from Railway to my own Lightsail server on 11/3 after Railway went down. Trade-off: I run the server.</li>
+    <li><b>Calder's decisions, not mine:</b> whether review becomes required before signing, and whether to accept more wrong flags for fewer misses.</li>
+  </ul>
+  <p class="src">Sources: known-issues.md, usability-sessions.md, risk-log.md</p>
+</section>
+
+<section class="slide">
+  <h2>Questions</h2>
+  <p class="muted">Files that may come up:</p>
+  <ul>
+    <li><b>core/reading.py</b> reads the PDF and splits it into clauses</li>
+    <li><b>core/ai_identify.py</b> asks Claude Haiku, checks the quote is really in the clause</li>
+    <li><b>core/rules.py</b> the text rules for insurance and audit rights</li>
+    <li><b>core/review.py</b> the decision rules, e.g. nobody reviews their own submission</li>
+    <li><b>core/models.py</b> the seven database tables</li>
+  </ul>
+</section>
+
+<div class="counter" id="counter"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('on', k === i));
+    document.getElementById('counter').textContent = (i + 1) + ' / ' + slides.length;
+  }
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    if (e.key === 'f' || e.key === 'F') document.documentElement.requestFullscreen?.();
+  });
+  document.addEventListener('click', e => { if (e.clientX > innerWidth / 2) show(i + 1); else show(i - 1); });
+  show(0);
+</script>
+</body>
+</html>

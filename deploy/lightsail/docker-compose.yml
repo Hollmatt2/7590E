@@ -1,0 +1,43 @@
+# Two containers: the website (web) and its own Postgres database (db).
+# Secrets live in /opt/calder/.env on the box, never in Git.
+name: calder
+services:
+  web:
+    build:
+      context: ../..
+      dockerfile: deploy/lightsail/Dockerfile
+    restart: unless-stopped
+    env_file: /opt/calder/.env
+    environment:
+      DATABASE_URL: postgres://calder:${DB_PASSWORD}@db/calder
+      MEDIA_ROOT: /data/media
+      PORT: "8000"
+    volumes:
+      - media:/data
+    mem_limit: 1g
+    cpus: 1.0
+    depends_on:
+      - db
+    networks:
+      default: {}
+      edge:
+        aliases: [calder-web]   # the name Caddy uses to reach the site
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: calder
+      POSTGRES_DB: calder
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    mem_limit: 512m
+    networks: [default]
+volumes:
+  media: {}
+  pgdata: {}
+networks:
+  default: {}
+  edge:
+    external: true
+    name: miniflux_default    # Caddy (from the Miniflux setup) handles HTTPS and forwards here
