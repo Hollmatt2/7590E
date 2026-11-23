@@ -62,7 +62,7 @@ Status as of 2026-09-17.
 | Role-based access control | Done |
 | Durable, attributable audit record of all review decisions | Done |
 | Reporting views for Procurement and Legal | Done |
-| Deployed and reachable at a URL, seeded with demo data and an account for each role | Done: web-production-48b18.up.railway.app, four demo logins |
+| Deployed and reachable at a URL, seeded with demo data and an account for each role | Done: calder.100-59-211-221.nip.io on Lightsail since 2026-11-03 (Railway until its project was removed on 10/25), four demo logins |
 | Verification results per Section 6 | Partial: only the 6.1 label spot-check outstanding |
 
 ## Section 9: technical constraints (Fixed)

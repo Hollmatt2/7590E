@@ -42,6 +42,6 @@ Written honestly, as the brief asks (section 11). Update it whenever something c
 - A finding's text and clause cannot be edited after it is added; it can only be dismissed with a reason.
 
 ## Operations
-- On Railway, the website and the reading step run in one service. If the reading step stops, the whole
-  service restarts.
+- The website and the reading step run in one container (`calder-web-1` on the Lightsail server). If the
+  reading step stops, the whole container restarts.
 - The app sends no email notifications.

@@ -35,7 +35,7 @@ Log in as `requester`, `reviewer`, `approver` or `admin`. The password is `calde
 
 ## Tests
 
-`python manage.py test` runs every automated check (about 50; under a minute).
+`python manage.py test` runs every automated check (63 as of 2026-11-23; under a minute).
 
 ## Commands
 
@@ -67,12 +67,12 @@ Everything that differs between a laptop and the deployed site is an environment
 |---|---|---|
 | `DJANGO_SECRET_KEY` | a development value | required: a long random string |
 | `DJANGO_DEBUG` | `1` | `0` |
-| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1` | Railway's address is added automatically |
-| `DATABASE_URL` | SQLite file | Railway's Postgres |
-| `MEDIA_ROOT` | `media/` | `/data/media`, on the Railway volume |
+| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1` | `calder.100-59-211-221.nip.io`, in `/opt/calder/.env` on the server |
+| `DATABASE_URL` | SQLite file | the Postgres container, set in `deploy/lightsail/docker-compose.yml` |
+| `MEDIA_ROOT` | `media/` | `/data/media`, on the `media` Docker volume |
 | `DEMO_PASSWORD` | `calder-demo` | set your own |
 | `AUTO_IDENTIFY` | `rules,ai` | `rules,ai` |
-| `ANTHROPIC_API_KEY` | your Anthropic key, for the AI step | the same, set in Railway |
+| `ANTHROPIC_API_KEY` | your Anthropic key, for the AI step | the same, in `/opt/calder/.env` on the server |
 | `AI_MODEL` | `claude-haiku-4-5` | `claude-haiku-4-5` (or `claude-opus-5`) |
 | `AI_LOW_CONFIDENCE` | `0.5` | the threshold from the threshold note |
 

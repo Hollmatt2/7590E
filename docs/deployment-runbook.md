@@ -1,5 +1,9 @@
 # Deployment runbook (Railway)
 
+> **Out of date since 2026-11-03.** The Railway project was removed on 10/25 and the site now runs on a
+> Lightsail server. The current instructions are in `deploy/lightsail/README.md`. This page is kept as the
+> record of the first deployment.
+
 The site runs as one Railway service, with a Postgres database and a volume for uploaded files.
 `start.sh` starts it: it applies database changes, gathers static files, loads the demo data, and then
 runs the website (gunicorn) and the reading step (`process_agreements --watch`) side by side. Both need
